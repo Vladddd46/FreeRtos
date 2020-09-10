@@ -48,9 +48,10 @@ void display_contrast_changer() {
     print_str_in_line(&display1, "     Hello World!", 3);
     sh1106_update(&display);
 
-    uint8_t res;
+    int res;
     while(1) {
-        res = photoresistor_value / 17;
+        res = (photoresistor_value / 17) - 255;
+        if (res < 0) res *= -1;
 
         // smooth stabilizator.
         if (screen_contrast_value < res - 5 && screen_contrast_value < res + 5 )
@@ -60,7 +61,6 @@ void display_contrast_changer() {
 
         sh1106_contrast(&display, (uint8_t)screen_contrast_value);
         // printf("%d %d %d\n", (int)res, photoresistor_value, screen_contrast_value); // DEBUG
-
         vTaskDelay(5);
     }
 }
