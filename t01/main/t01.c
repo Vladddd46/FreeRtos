@@ -7,6 +7,8 @@
 #include "driver/gpio.h"
 #include "wrappers.h"
 #include "general.h"
+#include "driver/dac.h"
+#include "driver/ledc.h"
 
 
 #define LF_ASCII_CODE 0xA
@@ -22,14 +24,18 @@
 
 xQueueHandle global_queue_handle;
 
+int led_must_pulse = 0;
+
+
 
 void user_input() {
     const char *prompt = "Enter your command : ";
     uint8_t command_line[COMMAND_LINE_MAX_LENGTH];
+
     while(1) {
         bzero(command_line, COMMAND_LINE_MAX_LENGTH);
         int  i = 0;
-        bool q = false;
+        bool quit = false;
         uart_write_bytes(UART_PORT, prompt, strlen(prompt));
 
         do {
@@ -39,20 +45,22 @@ void user_input() {
             if (r == 1) {
                 if (command_line[i] != 127) {
                     char *tmp = (char *)&command_line[i];
-                    int x = uart_write_bytes(UART_PORT, (const char *)tmp, 1);
+                    uart_write_bytes(UART_PORT, (const char *)tmp, 1);
                     i++;
                 }
-                else if (command_line[i] == 127 && i == 0)
-                    command_line[i] = '\0';
-                else if (command_line[i] == 127) {
-                    char c = 8;
-                    char *tmp = &c;
-                    uart_write_bytes(UART_PORT, tmp, 1);
-                    uart_write_bytes(UART_PORT, " ", 1);
-                    uart_write_bytes(UART_PORT, tmp, 1);
-                    command_line[i] = '\0';
-                    i -= 1;
-                    command_line[i] = '\0';
+                else if (command_line[i] == 127 ) {
+                    if (i == 0)
+                        command_line[i] = '\0';
+                    else {
+                        char c = 8;
+                        char *tmp = &c;
+                        uart_write_bytes(UART_PORT, tmp, 1);
+                        uart_write_bytes(UART_PORT, " ", 1);
+                        uart_write_bytes(UART_PORT, tmp, 1);
+                        command_line[i] = '\0';
+                        i -= 1;
+                        command_line[i] = '\0';
+                    }
                 }
             }
             
@@ -64,10 +72,10 @@ void user_input() {
                     uart_write_bytes(UART_PORT, "\n\r", 2);
                     int index = p - (char *)command_line;
                     command_line[index] = '\0';
-                    q = true;
+                    quit = true;
                 }
             }
-        } while(!q && i < COMMAND_LINE_MAX_LENGTH);
+        } while(!quit && i < COMMAND_LINE_MAX_LENGTH);
 
         if (!xQueueSend(global_queue_handle, command_line, 10000))
             printf("Failed to send data in queue\n");
@@ -75,38 +83,59 @@ void user_input() {
     }
 }
 
+
+
+
 void led_mode(int gpio_led, int set) {
     gpio_set(gpio_led, GPIO_MODE_OUTPUT, set);
 }
 
+void all_led_set(int mode) {
+    led_mode(GPIO_LED1, mode);
+    led_mode(GPIO_LED2, mode);
+    led_mode(GPIO_LED3, mode);
+}
 
+void led_set_by_id(int led_id, int mode) {
+    if (led_id == 1)
+        led_mode(GPIO_LED1, mode);
+    if (led_id == 2)
+        led_mode(GPIO_LED2, mode);
+    if (led_id == 3)
+        led_mode(GPIO_LED3, mode);
+}
 
 void led_commands(char **cmd, int len) {
-    if (cmd[1]) {
-        if (!strcmp(cmd[1], "on")) {
-            if (cmd[2])
-        }
+    int err = 0;
 
-    }
-
-
-
-        if (cmd[0] && strcmp(cmd[0], "led") != 0)
-            printf("\n\n 1 error: wrong command...\n");
-    else if (cmd[1] && (strcmp(cmd[1], "on") != 0 && strcmp(cmd[1], "off") != 0))
-        printf("\n\n 2 error: wrong command... %s %d %d\n", cmd[1],strcmp(cmd[1], "on") , strcmp(cmd[1], "off"));
-    else if (cmd[1]) {
-        if (!strcmp(cmd[1], "on")) {
-            led_mode(GPIO_LED1, 1);
-            led_mode(GPIO_LED2, 1);
-            led_mode(GPIO_LED3, 1);
-        }
-        else if (!strcmp(cmd[1], "off")) {
-            led_mode(GPIO_LED1, 0);
-            led_mode(GPIO_LED2, 0);
-            led_mode(GPIO_LED3, 0);
+    if (cmd[1] && !strcmp(cmd[1], "on")) {
+        if (len == 2)
+            all_led_set(1);
+        else if (len == 3) {
+            int led_num = atoi(cmd[2]);
+            if (led_num <= 0 || led_num > 3)
+                err = 1;
+            else
+                led_set_by_id(led_num, 1);
         }
     }
+    else if  (cmd[1] && !strcmp(cmd[1], "off")) {
+        if (len == 2)
+            all_led_set(0);
+        else if (len == 3) {
+            int led_num = atoi(cmd[2]);
+            if (led_num == 0 || led_num > 3)
+                err = 1;
+            else
+                led_set_by_id(led_num, 0);
+        }
+    }
+    // else if  (cmd[1] && !strcmp(cmd[1], "pulse")) {
+    //     if (led_must_pulse == 1)
+    //         led_must_pulse = 0;
+    //     else 
+    //         led_must_pulse = 1;
+    // }
 }
 
 
@@ -129,25 +158,28 @@ void cmd_handler() {
         if (xQueueReceive(global_queue_handle, result, 10000)) {
             for (int i = 0; i < 100; ++i) cmd[i] = NULL;
 
+            // splitting str into arr.
             int index = 0;
             char *p;
             p = strtok(result, " ");
             cmd[index] = p;
             index++;
-        
             while(p != NULL || index < 100) {
                 p = strtok(NULL, " ");
                 cmd[index] = p;
                 index++;
             }
-
-            int len = 0;
-            while(cmd[len] && len < 100) len++;
-            execute(cmd, len);
+            // 
+            int cmd_len = 0;
+            while(cmd[cmd_len] && cmd_len < 100) cmd_len++;
+            execute(cmd, cmd_len);
         }
         vTaskDelay(1);
     }
 }
+
+
+
 
 
 
