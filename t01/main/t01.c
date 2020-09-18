@@ -105,6 +105,7 @@ void led_set_by_id(int led_id, int mode) {
         led_mode(GPIO_LED3, mode);
 }
 
+
 void led_commands(char **cmd, int len) {
     int err = 0;
 
@@ -130,12 +131,12 @@ void led_commands(char **cmd, int len) {
                 led_set_by_id(led_num, 0);
         }
     }
-    // else if  (cmd[1] && !strcmp(cmd[1], "pulse")) {
-    //     if (led_must_pulse == 1)
-    //         led_must_pulse = 0;
-    //     else 
-    //         led_must_pulse = 1;
-    // }
+    else if  (cmd[1] && !strcmp(cmd[1], "pulse")) {
+        if (led_must_pulse == 1)
+            led_must_pulse = 0;
+        else 
+            led_must_pulse = 1;
+    }
 }
 
 
@@ -179,7 +180,93 @@ void cmd_handler() {
 }
 
 
+void led_pulse() {
+    // timer configuration.
+    ledc_timer_config_t ledc_timer;
+    ledc_timer.speed_mode      = LEDC_HIGH_SPEED_MODE;
+    ledc_timer.freq_hz         = 100;
+    ledc_timer.duty_resolution = LEDC_TIMER_8_BIT; // 256
+    ledc_timer.timer_num       = LEDC_TIMER_1;
+    if(ledc_timer_config(&ledc_timer) != ESP_OK) 
+        ESP_LOGI("ledc_timer_config ", "%s", "some error occured");
 
+    // chanel configuration.
+    ledc_channel_config_t ledc_channel;
+    ledc_channel.gpio_num   = GPIO_LED1;
+    ledc_channel.speed_mode = LEDC_HIGH_SPEED_MODE;
+    ledc_channel.channel    = LEDC_CHANNEL_1;
+    ledc_channel.intr_type  = LEDC_INTR_FADE_END;
+    ledc_channel.timer_sel  = LEDC_TIMER_1;
+    ledc_channel.duty       = 0;
+
+     // timer configuration.
+    ledc_timer_config_t ledc_timer1;
+    ledc_timer1.speed_mode      = LEDC_HIGH_SPEED_MODE;
+    ledc_timer1.freq_hz         = 100;
+    ledc_timer1.duty_resolution = LEDC_TIMER_8_BIT; // 256
+    ledc_timer1.timer_num       = LEDC_TIMER_2;
+    if(ledc_timer_config(&ledc_timer1) != ESP_OK) 
+        ESP_LOGI("ledc_timer_config ", "%s", "some error occured");
+
+    // chanel configuration.
+    ledc_channel_config_t ledc_channel1;
+    ledc_channel1.gpio_num   = GPIO_LED3;
+    ledc_channel1.speed_mode = LEDC_HIGH_SPEED_MODE;
+    ledc_channel1.channel    = LEDC_CHANNEL_2;
+    ledc_channel1.intr_type  = LEDC_INTR_FADE_END;
+    ledc_channel1.timer_sel  = LEDC_TIMER_2;
+    ledc_channel1.duty       = 0;
+
+
+
+    if (ledc_channel_config(&ledc_channel) != ESP_OK) 
+        ESP_LOGI("ledc_channel_config ", "%s", "some error occured");
+    if (ledc_fade_func_install(0) != ESP_OK) 
+        ESP_LOGI("ledc_fade_func_install ", "%s", "some error occured");
+
+    if (ledc_channel_config(&ledc_channel1) != ESP_OK) 
+        ESP_LOGI("ledc_channel_config ", "%s", "some error occured");
+    if (ledc_fade_func_install(0) != ESP_OK) 
+        ESP_LOGI("ledc_fade_func_install ", "%s", "some error occured");
+
+    dac_output_enable(DAC_CHANNEL_2);
+    while(1) {
+
+        if (led_must_pulse) {
+             // ascending.
+            ledc_set_fade_with_time(ledc_channel.speed_mode, ledc_channel.channel, 255, 1000);
+            ledc_fade_start(ledc_channel.speed_mode, ledc_channel.channel, LEDC_FADE_WAIT_DONE);
+            // descending.
+            ledc_set_fade_with_time(ledc_channel.speed_mode, ledc_channel.channel, 0, 1000);
+            ledc_fade_start(ledc_channel.speed_mode, ledc_channel.channel, LEDC_FADE_WAIT_DONE);
+        }
+
+        if (led_must_pulse) {
+              // ascending.
+            ledc_set_fade_with_time(ledc_channel1.speed_mode, ledc_channel1.channel, 255, 1000);
+            ledc_fade_start(ledc_channel1.speed_mode, ledc_channel1.channel, LEDC_FADE_WAIT_DONE);
+            // descending.
+            ledc_set_fade_with_time(ledc_channel1.speed_mode, ledc_channel1.channel, 0, 1000);
+            ledc_fade_start(ledc_channel1.speed_mode, ledc_channel1.channel, LEDC_FADE_WAIT_DONE);
+        }
+
+        if (led_must_pulse) {
+             int v;
+            for(v = 0; v < 255; v++) {
+              dac_output_voltage(DAC_CHANNEL_2, v);
+              ets_delay_us(5000);
+            } 
+
+            for(v = 255; v > 0; v--) {
+              dac_output_voltage(DAC_CHANNEL_2, v);
+              ets_delay_us(5000);
+            }
+        }
+
+        vTaskDelay(1);
+    }
+
+}
 
 
 
@@ -188,5 +275,6 @@ void app_main() {
     uart_init(9600);
     xTaskCreate(user_input,  "user_input",  4040, NULL, 10, NULL);
     xTaskCreate(cmd_handler, "cmd_handler", 4040, NULL, 10, NULL);
+    xTaskCreate(led_pulse, "led_pulse", 4040, NULL, 10, NULL);
 }
 
