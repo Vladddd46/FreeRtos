@@ -10,10 +10,24 @@
 #include "driver/dac.h"
 #include "driver/ledc.h"
 
+
+#define COMMAND_LINE_MAX_LENGTH 1024
+#define UART_PORT UART_NUM_1
+
+
 int led1_is_pulsing;
 int led2_is_pulsing;
 int led3_is_pulsing;
+xQueueHandle global_queue_handle;
+
+
 
 void led_mode(int gpio_led, int set);
 void all_led_set(int mode);
 void led_set_by_id(int led_id, int mode);
+
+void led1_pulsing();
+void led2_pulsing();
+void led3_pulsing();
+
+void user_input();
