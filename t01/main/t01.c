@@ -227,15 +227,22 @@ void led_commands(char **cmd, int len) {
                 }
             }
         }
+        else {
+            led1_is_pulsing = 1;
+            led2_is_pulsing = 1;
+            led3_is_pulsing = 1;      
+            xTaskCreate(led1_pulsing, "led1_pulsing", 4040, NULL, 10, NULL);
+            xTaskCreate(led2_pulsing, "led2_pulsing", 4040, NULL, 10, NULL);
+            xTaskCreate(led3_pulsing, "led3_pulsing", 4040, NULL, 10, NULL);
+        }
     }
 }
 
 
 void execute(char **cmd, int len) {
 
-    if (cmd[0] && !strcmp(cmd[0], "led")) {
+    if (cmd[0] && !strcmp(cmd[0], "led"))
         led_commands(cmd, len);
-    }
     // else if (other commands)
 }
 
