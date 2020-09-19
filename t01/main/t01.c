@@ -18,9 +18,6 @@
 
 xQueueHandle global_queue_handle;
 
-int led1_is_pulsing = 0;
-int led2_is_pulsing = 0;
-int led3_is_pulsing = 0;
 
 void led1_pulsing() {
     // timer configuration.
@@ -278,44 +275,41 @@ void led_off(char **cmd, int len) {
     }
 }
 
-
-void led_commands(char **cmd, int len) {
+void led_pulse(char **cmd, int len) {
     int err = 0;
     int led_num;
 
-    if (cmd[1] && !strcmp(cmd[1], "on"))
-        led_on(cmd, len);
-    else if  (cmd[1] && !strcmp(cmd[1], "off"))
-        led_off(cmd, len);
-    else if  (cmd[1] && !strcmp(cmd[1], "pulse")) {
-        if (cmd[2]) {
-            led_num = atoi(cmd[2]);
-            printf("%d %d %d\n", led1_is_pulsing, led2_is_pulsing, led3_is_pulsing);
-            if (led_num == 1) {
-                if (led1_is_pulsing)
-                    led1_is_pulsing = 0;
-                else {
-                    led1_is_pulsing = 1;
-                    xTaskCreate(led1_pulsing, "led1_pulsing", 10040, NULL, 10, NULL);
-                }
-            }
-            if (led_num == 2) {
-                if (led2_is_pulsing)
-                    led2_is_pulsing = 0;
-                else {
-                    led2_is_pulsing = 1;
-                    xTaskCreate(led2_pulsing, "led2_pulsing", 4040, NULL, 10, NULL);
-                }
-            }
-            if (led_num == 3) {
-                 if (led3_is_pulsing)
-                    led3_is_pulsing = 0;
-                else {
-                    led3_is_pulsing = 1;
-                    xTaskCreate(led3_pulsing, "led3_pulsing", 4040, NULL, 10, NULL);
-                }
+    if (cmd[2]) {
+        led_num = atoi(cmd[2]);
+
+        if (led_num == 1) {
+            if (gpio_get_level(GPIO_LED1))
+                err = LED_BUSY;
+            else {
+                led1_is_pulsing = 1;
+                xTaskCreate(led1_pulsing, "led1_pulsing", 10040, NULL, 10, NULL);
             }
         }
+        if (led_num == 2) {
+            if (gpio_get_level(GPIO_LED2))
+                err = LED_BUSY;
+            else {
+                led2_is_pulsing = 1;
+                xTaskCreate(led2_pulsing, "led2_pulsing", 4040, NULL, 10, NULL);
+            }
+        }
+        if (led_num == 3) {
+            if (gpio_get_level(GPIO_LED3))
+                err = LED_BUSY;
+            else {
+                led3_is_pulsing = 1;
+                xTaskCreate(led3_pulsing, "led3_pulsing", 4040, NULL, 10, NULL);
+            }
+        }
+    }
+    else {
+        if (gpio_get_level(GPIO_LED1) || gpio_get_level(GPIO_LED2) || gpio_get_level(GPIO_LED3))
+            err = LED_BUSY;
         else {
             led1_is_pulsing = 1;
             led2_is_pulsing = 1;
@@ -325,6 +319,23 @@ void led_commands(char **cmd, int len) {
             xTaskCreate(led3_pulsing, "led3_pulsing", 4040, NULL, 10, NULL);
         }
     }
+
+    char *msg;
+    if (err == LED_BUSY) {
+        msg = "\e[31m led is busy| led[s] you are trying to make pulse is[are] busy. Turn off your led in order\
+        to do manipulations with it. syntax: led off led_number(1-3)\e[0m\n\r";
+        uart_write_bytes(UART_PORT, msg, strlen(msg));
+    }
+}
+
+void led_commands(char **cmd, int len) {
+    printf("%d %d %d\n", gpio_get_level(GPIO_LED1), gpio_get_level(GPIO_LED2), gpio_get_level(GPIO_LED3));
+    if (cmd[1] && !strcmp(cmd[1], "on"))
+        led_on(cmd, len);
+    else if  (cmd[1] && !strcmp(cmd[1], "off"))
+        led_off(cmd, len);
+    else if  (cmd[1] && !strcmp(cmd[1], "pulse"))
+        led_pulse(cmd, len);
 }
 
 
@@ -374,6 +385,10 @@ void cmd_handler() {
 
 
 void app_main() {
+    led1_is_pulsing = 0;
+    led2_is_pulsing = 0;
+    led3_is_pulsing = 0;
+    
     global_queue_handle = xQueueCreate(5, COMMAND_LINE_MAX_LENGTH);
     uart_init(9600);
     xTaskCreate(user_input,  "user_input",  4040, NULL, 10, NULL);

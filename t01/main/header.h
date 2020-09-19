@@ -10,6 +10,9 @@
 #include "driver/dac.h"
 #include "driver/ledc.h"
 
+int led1_is_pulsing;
+int led2_is_pulsing;
+int led3_is_pulsing;
 
 void led_mode(int gpio_led, int set);
 void all_led_set(int mode);
