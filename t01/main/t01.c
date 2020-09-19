@@ -12,6 +12,7 @@
 #define GPIO_LED2 26
 #define GPIO_LED3 33
 
+
 xQueueHandle global_queue_handle;
 
 int led1_is_pulsing = 0;
@@ -190,33 +191,53 @@ void user_input() {
     }
 }
 
+void led_on(char **cmd, int len) {
+    int err = 0;
+    int led_num;
+    
+    if (len == 2)
+        all_led_set(1);
+    else if (len == 3) {
+        led_num = atoi(cmd[2]);
+        if (led_num <= 0 || led_num > 3)
+            err = 1;
+        else
+            led_set_by_id(led_num, 1);
+    }
+}
+
+void led_off(char **cmd, int len) {
+    int err = 0;
+    int led_num;
+
+    if (len == 2) {
+        all_led_set(0);
+        led1_is_pulsing = 0;
+        led2_is_pulsing = 0;
+        led3_is_pulsing = 0;
+    }
+    else if (len == 3) {
+        led_num = atoi(cmd[2]);
+        if (led_num == 0 || led_num > 3)
+            err = 1;
+        else {
+            led_set_by_id(led_num, 0);
+            if (led_num == 1) led1_is_pulsing = 0;
+            if (led_num == 2) led2_is_pulsing = 0;
+            if (led_num == 3) led3_is_pulsing = 0;
+        }
+    }
+}
+
 
 void led_commands(char **cmd, int len) {
     int err = 0;
     int led_num;
 
-    if (cmd[1] && !strcmp(cmd[1], "on")) {
-        if (len == 2)
-            all_led_set(1);
-        else if (len == 3) {
-            led_num = atoi(cmd[2]);
-            if (led_num <= 0 || led_num > 3)
-                err = 1;
-            else
-                led_set_by_id(led_num, 1);
-        }
-    }
-    else if  (cmd[1] && !strcmp(cmd[1], "off")) {
-        if (len == 2)
-            all_led_set(0);
-        else if (len == 3) {
-            led_num = atoi(cmd[2]);
-            if (led_num == 0 || led_num > 3)
-                err = 1;
-            else
-                led_set_by_id(led_num, 0);
-        }
-    }
+    if (cmd[1] && !strcmp(cmd[1], "on"))
+        led_on(cmd, len);
+    else if  (cmd[1] && !strcmp(cmd[1], "off"))
+        led_off(cmd, len);
     else if  (cmd[1] && !strcmp(cmd[1], "pulse")) {
         if (cmd[2]) {
             led_num = atoi(cmd[2]);
@@ -259,7 +280,6 @@ void led_commands(char **cmd, int len) {
 
 
 void execute(char **cmd, int len) {
-
     if (cmd[0] && !strcmp(cmd[0], "led"))
         led_commands(cmd, len);
     // else if (other commands)
@@ -267,6 +287,12 @@ void execute(char **cmd, int len) {
 
 
 
+/*
+ * Receives user`s input from Queue.
+ * Splits user`s input in arr.
+ * Calls execute function, which is in charge 
+ * of executing command.
+ */
 void cmd_handler() {
     char result[1000];
     bzero(result, 1000);
@@ -292,7 +318,7 @@ void cmd_handler() {
             while(cmd[cmd_len] && cmd_len < 100) cmd_len++;
             execute(cmd, cmd_len);
         }
-        vTaskDelay(1);
+        vTaskDelay(10);
     }
 }
 
