@@ -9,6 +9,7 @@
 #include "general.h"
 #include "driver/dac.h"
 #include "driver/ledc.h"
+#include <regex.h> 
 
 
 #define COMMAND_LINE_MAX_LENGTH 1024

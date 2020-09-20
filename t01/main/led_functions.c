@@ -92,31 +92,34 @@ void led_pulse(char **cmd, int len) {
     int led_num;
 
     if (cmd[2]) {
+        if (cmd[3]) {
+            regex_t regex;
+            int reti = regcomp(&regex, "^f=[0-2].[0-9]$", 0);
+            if (reti) {
+                fprintf(stderr, "Could not compile regex\n");
+                exit(1);
+            }
+            /* Execute regular expression */
+            reti = regexec(&regex, cmd[3], 0, NULL, 0);
+            if (!reti)
+                puts("Match");
+            else if (reti == REG_NOMATCH)
+                puts("No match");
+        }
+
         led_num = atoi(cmd[2]);
 
         if (led_num == 1) {
-            if (gpio_get_level(GPIO_LED1))
-                err = LED_BUSY;
-            else {
-                led1_is_pulsing = 1;
-                xTaskCreate(led1_pulsing, "led1_pulsing", 10040, NULL, 10, NULL);
-            }
+            led1_is_pulsing = 1;
+            xTaskCreate(led1_pulsing, "led1_pulsing", 4040, NULL, 10, NULL);
         }
         if (led_num == 2) {
-            if (gpio_get_level(GPIO_LED2))
-                err = LED_BUSY;
-            else {
-                led2_is_pulsing = 1;
-                xTaskCreate(led2_pulsing, "led2_pulsing", 4040, NULL, 10, NULL);
-            }
+            led2_is_pulsing = 1;
+            xTaskCreate(led2_pulsing, "led2_pulsing", 4040, NULL, 10, NULL);
         }
         if (led_num == 3) {
-            if (gpio_get_level(GPIO_LED3))
-                err = LED_BUSY;
-            else {
-                led3_is_pulsing = 1;
-                xTaskCreate(led3_pulsing, "led3_pulsing", 4040, NULL, 10, NULL);
-            }
+            led3_is_pulsing = 1;
+            xTaskCreate(led3_pulsing, "led3_pulsing", 4040, NULL, 10, NULL);
         }
     }
     else {
