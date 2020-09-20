@@ -14,7 +14,6 @@
 #define COMMAND_LINE_MAX_LENGTH 1024
 #define UART_PORT UART_NUM_1
 
-
 int led1_is_pulsing;
 int led2_is_pulsing;
 int led3_is_pulsing;

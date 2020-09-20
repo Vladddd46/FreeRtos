@@ -3,7 +3,11 @@
 #define LF_ASCII_CODE 0xA
 #define CR_ASCII_CODE 0xD // \r the same
 
-
+/*
+ * Reads user`s input from UART2 and stores it in comman_Line string.
+ * When user press enter string command_line is sending to cmd_handler
+ * task through queue.
+ */
 void user_input() {
     const char *prompt = "Enter your command : ";
     uint8_t command_line[COMMAND_LINE_MAX_LENGTH];
@@ -53,11 +57,14 @@ void user_input() {
             }
         } while(!quit && i < COMMAND_LINE_MAX_LENGTH);
 
-        if (!xQueueSend(global_queue_handle, command_line, 10000))
+        if (!xQueueSend(global_queue_handle, command_line, (200 / portTICK_PERIOD_MS)))
             printf("Failed to send data in queue\n");
         vTaskDelay(1);
     }
 }
+
+
+
 
 /*
  * Receives user`s input from Queue.
@@ -71,7 +78,7 @@ void cmd_handler() {
 
     char **cmd = (char **)malloc(100 * sizeof(char *));
     while(1) {
-        if (xQueueReceive(global_queue_handle, result, 10000)) {
+        if (xQueueReceive(global_queue_handle, result, (200 / portTICK_PERIOD_MS))) {
             for (int i = 0; i < 100; ++i) cmd[i] = NULL;
 
             // splitting str into arr.
@@ -90,6 +97,5 @@ void cmd_handler() {
             while(cmd[cmd_len] && cmd_len < 100) cmd_len++;
             execute(cmd, cmd_len);
         }
-        vTaskDelay(10);
     }
 }

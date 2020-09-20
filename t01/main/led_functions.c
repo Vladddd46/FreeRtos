@@ -8,6 +8,23 @@
 #define INVALID_ARGUMENT 11
 #define LED_BUSY         12
 
+void eror_msg(int err) {
+    char *msg;
+    if (err == INVALID_ARGUMENT) {
+        msg = "\e[31minvalid led number| led on/off [1-3]\e[0m\n\r";
+        uart_write_bytes(UART_PORT, msg, strlen(msg));
+    }
+    else if (err == WRONG_SYNTAX) {
+        msg = "\e[31mwrong syntax| led on/off [1-3]\e[0m\n\r";
+        uart_write_bytes(UART_PORT, msg, strlen(msg));
+    }
+    else if (err == LED_BUSY) {
+        msg = "\e[31m led is busy| led[s] you are trying to turn on is[are] busy. Turn off your led in order\
+        to do manipulations with it. syntax: led off led_number(1-3)\e[0m\n\r";
+        uart_write_bytes(UART_PORT, msg, strlen(msg));
+    }
+}
+
 void led_on(char **cmd, int len) {
     int err = 0;
     int led_num;
@@ -33,20 +50,7 @@ void led_on(char **cmd, int len) {
     else
         err = WRONG_SYNTAX;
 
-    char *msg;
-    if (err == INVALID_ARGUMENT) {
-        msg = "\e[31minvalid led number| led on [1-3]\e[0m\n\r";
-        uart_write_bytes(UART_PORT, msg, strlen(msg));
-    }
-    else if (err == WRONG_SYNTAX) {
-        msg = "\e[31mwrong syntax| led on [1-3]\e[0m\n\r";
-        uart_write_bytes(UART_PORT, msg, strlen(msg));
-    }
-    else if (err == LED_BUSY) {
-        msg = "\e[31m led is busy| led[s] you are trying to turn on is[are] busy. Turn off your led in order\
-        to do manipulations with it. syntax: led off led_number(1-3)\e[0m\n\r";
-        uart_write_bytes(UART_PORT, msg, strlen(msg));
-    }
+    eror_msg(err);
 }
 
 
@@ -80,15 +84,7 @@ void led_off(char **cmd, int len) {
     else
         err = WRONG_SYNTAX;
 
-    char *msg;
-    if (err == INVALID_ARGUMENT) {
-        msg = "\e[31minvalid led number| led off [1-3]\e[0m\n\r";
-        uart_write_bytes(UART_PORT, msg, strlen(msg));
-    }
-    else if (err == WRONG_SYNTAX) {
-        msg = "\e[31mwrong syntax| led off [1-3]\e[0m\n\r";
-        uart_write_bytes(UART_PORT, msg, strlen(msg));
-    }
+    eror_msg(err);
 }
 
 void led_pulse(char **cmd, int len) {
@@ -135,11 +131,5 @@ void led_pulse(char **cmd, int len) {
             xTaskCreate(led3_pulsing, "led3_pulsing", 4040, NULL, 10, NULL);
         }
     }
-
-    char *msg;
-    if (err == LED_BUSY) {
-        msg = "\e[31m led is busy| led[s] you are trying to make pulse is[are] busy. Turn off your led in order\
-        to do manipulations with it. syntax: led off led_number(1-3)\e[0m\n\r";
-        uart_write_bytes(UART_PORT, msg, strlen(msg));
-    }
+    eror_msg(err);
 }
