@@ -48,8 +48,6 @@ void user_input() {
                 char *p = strchr((const char *)command_line, CR_ASCII_CODE);
                 if (p != NULL) {
                     uart_write_bytes(UART_PORT, "\n\r", 2);
-                    uart_write_bytes(UART_PORT, (const char *)command_line, i);
-                    uart_write_bytes(UART_PORT, "\n\r", 2);
                     int index = p - (char *)command_line;
                     command_line[index] = '\0';
                     quit = true;

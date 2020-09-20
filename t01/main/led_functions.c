@@ -11,16 +11,16 @@
 void eror_msg(int err) {
     char *msg;
     if (err == INVALID_ARGUMENT) {
-        msg = "\e[31minvalid led number| led on/off [1-3]\e[0m\n\r";
+        msg = "\e[31minvalid led number|\e[33m led on/off [1-3]\e[0m\n\r";
         uart_write_bytes(UART_PORT, msg, strlen(msg));
     }
     else if (err == WRONG_SYNTAX) {
-        msg = "\e[31mwrong syntax| led on/off [1-3]\e[0m\n\r";
+        msg = "\e[31mwrong syntax|\e[33m led on/off [1-3]\e[0m\n\r";
         uart_write_bytes(UART_PORT, msg, strlen(msg));
     }
     else if (err == LED_BUSY) {
-        msg = "\e[31m led is busy| led[s] you are trying to turn on is[are] busy. Turn off your led in order\
-        to do manipulations with it. syntax: led off led_number(1-3)\e[0m\n\r";
+        msg = "\e[31m led is busy| led[s] you are trying to turn on is[are] busy.\n\rTurn off your led in order\
+to do manipulations with it.\e[33msyntax: led off led_number(1-3)\e[0m\n\r";
         uart_write_bytes(UART_PORT, msg, strlen(msg));
     }
 }
@@ -101,10 +101,12 @@ void led_pulse(char **cmd, int len) {
             }
             /* Execute regular expression */
             reti = regexec(&regex, cmd[3], 0, NULL, 0);
-            if (!reti)
-                puts("Match");
-            else if (reti == REG_NOMATCH)
-                puts("No match");
+            if (!reti){
+                printf("MATCH\n");
+            }
+            else if (reti == REG_NOMATCH){
+                err = WRONG_SYNTAX;
+            }
         }
 
         led_num = atoi(cmd[2]);
