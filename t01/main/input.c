@@ -58,3 +58,38 @@ void user_input() {
         vTaskDelay(1);
     }
 }
+
+/*
+ * Receives user`s input from Queue.
+ * Splits user`s input in arr.
+ * Calls execute function, which is in charge 
+ * of executing command.
+ */
+void cmd_handler() {
+    char result[1000];
+    bzero(result, 1000);
+
+    char **cmd = (char **)malloc(100 * sizeof(char *));
+    while(1) {
+        if (xQueueReceive(global_queue_handle, result, 10000)) {
+            for (int i = 0; i < 100; ++i) cmd[i] = NULL;
+
+            // splitting str into arr.
+            int index = 0;
+            char *p;
+            p = strtok(result, " ");
+            cmd[index] = p;
+            index++;
+            while(p != NULL || index < 100) {
+                p = strtok(NULL, " ");
+                cmd[index] = p;
+                index++;
+            }
+            // 
+            int cmd_len = 0;
+            while(cmd[cmd_len] && cmd_len < 100) cmd_len++;
+            execute(cmd, cmd_len);
+        }
+        vTaskDelay(10);
+    }
+}

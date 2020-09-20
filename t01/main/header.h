@@ -31,3 +31,11 @@ void led2_pulsing();
 void led3_pulsing();
 
 void user_input();
+void cmd_handler();
+
+void execute(char **cmd, int len);
+
+/* led functions */
+void led_on(char **cmd, int len);
+void led_off(char **cmd, int len);
+void led_pulse(char **cmd, int len);
