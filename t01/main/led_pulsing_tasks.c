@@ -4,29 +4,62 @@
 #define LED2 26
 #define LED3 33
 
+int led_gpio_determine(int led_id) {
+    int res = LED1; // BY DEFAULT 
+
+    if (led_id == 1)
+        res = LED1;
+    else if (led_id == 2)
+        res = LED2;
+    else if (led_id == 3)
+        res = LED3;
+    return res;
+}
+
+int led_timer_determiner(int led_id) {
+    int timer = LEDC_TIMER_1;
+     if (led_id == 1)
+        timer = LEDC_TIMER_1;
+    else if (led_id == 2)
+        timer = LEDC_TIMER_2;
+    else if (led_id == 3)
+        timer = LEDC_TIMER_3;
+    return timer;
+}
+
+int led_channel_determiner(int led_id) {
+    int channel = LEDC_CHANNEL_1;
+     if (led_id == 1)
+        channel = LEDC_CHANNEL_1;
+    else if (led_id == 2)
+        channel = LEDC_CHANNEL_2;
+    else if (led_id == 3)
+        channel = LEDC_CHANNEL_3;
+    return channel;
+}
 
 void led1_pulsing(void *settings) {
     struct led_settings_description *data = (struct led_settings_description *)settings;
 
-    if (data != NULL)
+    // if (data != NULL)
     printf("%d %f\n", data->led_id, data->freq);
 
     // timer configuration.
     ledc_timer_config_t ledc_timer;
     ledc_timer.speed_mode      = LEDC_HIGH_SPEED_MODE;
-    ledc_timer.freq_hz         = 100;
+    ledc_timer.freq_hz         = data->freq * 100;
     ledc_timer.duty_resolution = LEDC_TIMER_8_BIT; // 256
-    ledc_timer.timer_num       = LEDC_TIMER_1;
+    ledc_timer.timer_num       = led_timer_determiner(data->led_id);
     if(ledc_timer_config(&ledc_timer) != ESP_OK) 
         ESP_LOGI("ledc_timer_config ", "%s", "some error occured");
 
     // chanel configuration.
     ledc_channel_config_t ledc_channel;
-    ledc_channel.gpio_num   = LED1;
+    ledc_channel.gpio_num   = led_gpio_determine(data->led_id);
     ledc_channel.speed_mode = LEDC_HIGH_SPEED_MODE;
-    ledc_channel.channel    = LEDC_CHANNEL_1;
+    ledc_channel.channel    = led_channel_determiner(data->led_id);
     ledc_channel.intr_type  = LEDC_INTR_FADE_END;
-    ledc_channel.timer_sel  = LEDC_TIMER_1;
+    ledc_channel.timer_sel  = led_timer_determiner(data->led_id);
     ledc_channel.duty       = 0;
 
     if (ledc_channel_config(&ledc_channel) != ESP_OK) 
@@ -35,7 +68,11 @@ void led1_pulsing(void *settings) {
         ESP_LOGI("ledc_fade_func_install ", "%s", "some error occured");
 
      while(1) {
-        if (led1_is_pulsing == 0)
+        if (data->led_id == 1 && led1_is_pulsing == 0)
+            vTaskDelete(NULL);
+        else if (data->led_id == 2 && led2_is_pulsing == 0)
+            vTaskDelete(NULL);
+        else if (data->led_id == 3 && led3_is_pulsing == 0)
             vTaskDelete(NULL);
 
         // ascending.
@@ -48,79 +85,4 @@ void led1_pulsing(void *settings) {
     }
 }
 
-void led2_pulsing() {
-    // timer configuration.
-    ledc_timer_config_t ledc_timer;
-    ledc_timer.speed_mode      = LEDC_HIGH_SPEED_MODE;
-    ledc_timer.freq_hz         = 100;
-    ledc_timer.duty_resolution = LEDC_TIMER_8_BIT; // 256
-    ledc_timer.timer_num       = LEDC_TIMER_1;
-    if(ledc_timer_config(&ledc_timer) != ESP_OK) 
-        ESP_LOGI("ledc_timer_config ", "%s", "some error occured");
-
-    // chanel configuration.
-    ledc_channel_config_t ledc_channel;
-    ledc_channel.gpio_num   = LED2;
-    ledc_channel.speed_mode = LEDC_HIGH_SPEED_MODE;
-    ledc_channel.channel    = LEDC_CHANNEL_1;
-    ledc_channel.intr_type  = LEDC_INTR_FADE_END;
-    ledc_channel.timer_sel  = LEDC_TIMER_1;
-    ledc_channel.duty       = 0;
-
-    if (ledc_channel_config(&ledc_channel) != ESP_OK) 
-        ESP_LOGI("ledc_channel_config ", "%s", "some error occured");
-    if (ledc_fade_func_install(0) != ESP_OK) 
-        ESP_LOGI("ledc_fade_func_install ", "%s", "some error occured");
-
-     while(1) {
-        if (led2_is_pulsing == 0)
-            vTaskDelete(NULL);
-
-        // ascending.
-        ledc_set_fade_with_time(ledc_channel.speed_mode, ledc_channel.channel, 255, 1000);
-        ledc_fade_start(ledc_channel.speed_mode, ledc_channel.channel, LEDC_FADE_WAIT_DONE);
-        // descending.
-        ledc_set_fade_with_time(ledc_channel.speed_mode, ledc_channel.channel, 0, 1000);
-        ledc_fade_start(ledc_channel.speed_mode, ledc_channel.channel, LEDC_FADE_WAIT_DONE);
-        vTaskDelay(1);
-    }
-}
-
-void led3_pulsing() {
-    // timer configuration.
-    ledc_timer_config_t ledc_timer;
-    ledc_timer.speed_mode      = LEDC_HIGH_SPEED_MODE;
-    ledc_timer.freq_hz         = 100;
-    ledc_timer.duty_resolution = LEDC_TIMER_8_BIT; // 256
-    ledc_timer.timer_num       = LEDC_TIMER_1;
-    if(ledc_timer_config(&ledc_timer) != ESP_OK) 
-        ESP_LOGI("ledc_timer_config ", "%s", "some error occured");
-
-    // chanel configuration.
-    ledc_channel_config_t ledc_channel;
-    ledc_channel.gpio_num   = LED3;
-    ledc_channel.speed_mode = LEDC_HIGH_SPEED_MODE;
-    ledc_channel.channel    = LEDC_CHANNEL_1;
-    ledc_channel.intr_type  = LEDC_INTR_FADE_END;
-    ledc_channel.timer_sel  = LEDC_TIMER_1;
-    ledc_channel.duty       = 0;
-
-    if (ledc_channel_config(&ledc_channel) != ESP_OK) 
-        ESP_LOGI("ledc_channel_config ", "%s", "some error occured");
-    if (ledc_fade_func_install(0) != ESP_OK) 
-        ESP_LOGI("ledc_fade_func_install ", "%s", "some error occured");
-
-    while(1) {
-        if (led3_is_pulsing == 0)
-            vTaskDelete(NULL);
-
-        // ascending.
-        ledc_set_fade_with_time(ledc_channel.speed_mode, ledc_channel.channel, 255, 1000);
-        ledc_fade_start(ledc_channel.speed_mode, ledc_channel.channel, LEDC_FADE_WAIT_DONE);
-        // descending.
-        ledc_set_fade_with_time(ledc_channel.speed_mode, ledc_channel.channel, 0, 1000);
-        ledc_fade_start(ledc_channel.speed_mode, ledc_channel.channel, LEDC_FADE_WAIT_DONE);
-        vTaskDelay(1);
-    }
-}
 

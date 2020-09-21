@@ -40,8 +40,6 @@ void all_led_set(int mode);
 void led_set_by_id(int led_id, int mode);
 
 void led1_pulsing(void *settings);
-void led2_pulsing();
-void led3_pulsing();
 
 void user_input();
 void cmd_handler();

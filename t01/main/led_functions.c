@@ -130,10 +130,22 @@ void led_pulse(char **cmd, int len) {
     else if (cmd[2] == NULL || freq_match(cmd[2])) {
         led1_is_pulsing = 1;
         led2_is_pulsing = 1;
-        led3_is_pulsing = 1;      
-        xTaskCreate(led1_pulsing, "led1_pulsing", 4040, NULL, 10, NULL);
-        xTaskCreate(led2_pulsing, "led2_pulsing", 4040, NULL, 10, NULL);
-        xTaskCreate(led3_pulsing, "led3_pulsing", 4040, NULL, 10, NULL);
+        led3_is_pulsing = 1;
+
+        struct led_settings_description *data1 = (struct led_settings_description *)malloc(sizeof(struct led_settings_description));
+        data1->led_id = 1;
+        data1->freq = freq;
+        xTaskCreate(led1_pulsing, "led1_pulsing", 4040, (void *)data1, 10, NULL);
+
+        struct led_settings_description *data2 = (struct led_settings_description *)malloc(sizeof(struct led_settings_description));
+        data2->led_id = 2;
+        data2->freq = freq;
+        xTaskCreate(led1_pulsing, "led2_pulsing", 4040, (void *)data2, 10, NULL);   
+
+        struct led_settings_description *data3 = (struct led_settings_description *)malloc(sizeof(struct led_settings_description));
+        data3->led_id = 3;
+        data3->freq = freq;
+        xTaskCreate(led1_pulsing, "led2_pulsing", 4040, (void *)data3, 10, NULL);       
     }
     else {
         led_num = atoi(cmd[2]);
@@ -145,12 +157,16 @@ void led_pulse(char **cmd, int len) {
             xTaskCreate(led1_pulsing, "led1_pulsing", 4040, (void *)data, 10, NULL);
         }
         if (led_num == 2) {
+            data->led_id = 2;
+            data->freq = freq;
             led2_is_pulsing = 1;
-            xTaskCreate(led2_pulsing, "led2_pulsing", 4040, NULL, 10, NULL);
+            xTaskCreate(led1_pulsing, "led2_pulsing", 4040, (void *)data, 10, NULL);
         }
         if (led_num == 3) {
+            data->led_id = 3;
+            data->freq = freq;
             led3_is_pulsing = 1;
-            xTaskCreate(led3_pulsing, "led3_pulsing", 4040, NULL, 10, NULL);
+            xTaskCreate(led1_pulsing, "led2_pulsing", 4040, (void *)data, 10, NULL);
         }
     }
     error_msg(err);
