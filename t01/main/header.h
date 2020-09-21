@@ -21,6 +21,7 @@
 #define LED_BUSY                12
 #define NO_SUCH_COMMAND         13
 #define WRONG_SYNTAX_PULSE      14
+#define WRONG_FREQUENCY_VALUE   15
 
 int led1_is_pulsing;
 int led2_is_pulsing;

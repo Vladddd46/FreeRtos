@@ -68,7 +68,14 @@ void led_off(char **cmd, int len) {
 }
 
 
+
+/*
+ * Retrieves 
+ *
+ */
 float freq_determine(char *subcmd) {
+    if (subcmd == NULL)
+        return -1;
     char *freq_str = (char *)malloc(5 * sizeof(char));
     bzero(freq_str, 5);
 
@@ -83,54 +90,70 @@ float freq_determine(char *subcmd) {
 }
 
 
+
+/*
+ * Checks, whether str matches 
+ * frequency subcommand pattern.
+ * ^f=x.y$ , where 0 <= x <= 2, 0 <= y <= 9
+ */
+int freq_match(char *substr) {
+    if (substr == NULL)
+        return 0;
+    regex_t regex;
+    int reti = regcomp(&regex, "^f=[0-2].[0-9]$", 0);
+
+    if (reti) 
+        return 0;
+    reti = regexec(&regex, substr, 0, NULL, 0);
+    if (!reti) 
+        return 1;
+    return  0;
+}
+
+
 void led_pulse(char **cmd, int len) {
     int err = 0;
     int led_num;
+    float freq = 1;
 
-    if (cmd[2]) {
-        if (cmd[3]) {
-            regex_t regex;
-            int reti = regcomp(&regex, "^f=[0-2].[0-9]$", 0);
-            if (reti) {
-                fprintf(stderr, "Could not compile regex\n");
-                exit(1);
-            }
-            /* Execute regular expression */
-            reti = regexec(&regex, cmd[3], 0, NULL, 0);
-            if (!reti) {
-                float freq = freq_determine(cmd[3]);
-            }
-            else if (reti == REG_NOMATCH){
-                err = WRONG_SYNTAX_PULSE;
-            }
-        }
+    if (freq_match(cmd[2]))
+        freq = freq_determine(cmd[2]);
+    else if (freq_match(cmd[3]))
+        freq = freq_determine(cmd[3]);
 
-        led_num = atoi(cmd[2]);
+    if (freq < 0.0 || freq > 2.0)
+        err = WRONG_FREQUENCY_VALUE;
 
-        if (led_num == 1) {
-            led1_is_pulsing = 1;
-            xTaskCreate(led1_pulsing, "led1_pulsing", 4040, NULL, 10, NULL);
-        }
-        if (led_num == 2) {
-            led2_is_pulsing = 1;
-            xTaskCreate(led2_pulsing, "led2_pulsing", 4040, NULL, 10, NULL);
-        }
-        if (led_num == 3) {
-            led3_is_pulsing = 1;
-            xTaskCreate(led3_pulsing, "led3_pulsing", 4040, NULL, 10, NULL);
-        }
-    }
-    else {
-        if (gpio_get_level(GPIO_LED1) || gpio_get_level(GPIO_LED2) || gpio_get_level(GPIO_LED3))
-            err = LED_BUSY;
-        else {
-            led1_is_pulsing = 1;
-            led2_is_pulsing = 1;
-            led3_is_pulsing = 1;      
-            xTaskCreate(led1_pulsing, "led1_pulsing", 4040, NULL, 10, NULL);
-            xTaskCreate(led2_pulsing, "led2_pulsing", 4040, NULL, 10, NULL);
-            xTaskCreate(led3_pulsing, "led3_pulsing", 4040, NULL, 10, NULL);
-        }
-    }
+
+
+    // if (cmd[2]) {
+    //     if (cmd[3]) {
+    //         if (freq_match(cmd[3]))
+    //             float freq = freq_determine(cmd[3]);
+    //     }
+
+    //     led_num = atoi(cmd[2]);
+
+    //     if (led_num == 1) {
+    //         led1_is_pulsing = 1;
+    //         xTaskCreate(led1_pulsing, "led1_pulsing", 4040, NULL, 10, NULL);
+    //     }
+    //     if (led_num == 2) {
+    //         led2_is_pulsing = 1;
+    //         xTaskCreate(led2_pulsing, "led2_pulsing", 4040, NULL, 10, NULL);
+    //     }
+    //     if (led_num == 3) {
+    //         led3_is_pulsing = 1;
+    //         xTaskCreate(led3_pulsing, "led3_pulsing", 4040, NULL, 10, NULL);
+    //     }
+    // }
+    // else {
+    //         led1_is_pulsing = 1;
+    //         led2_is_pulsing = 1;
+    //         led3_is_pulsing = 1;      
+    //         xTaskCreate(led1_pulsing, "led1_pulsing", 4040, NULL, 10, NULL);
+    //         xTaskCreate(led2_pulsing, "led2_pulsing", 4040, NULL, 10, NULL);
+    //         xTaskCreate(led3_pulsing, "led3_pulsing", 4040, NULL, 10, NULL);
+    // }
     error_msg(err);
 }
