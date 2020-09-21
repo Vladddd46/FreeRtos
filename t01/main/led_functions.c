@@ -124,36 +124,30 @@ void led_pulse(char **cmd, int len) {
     if (freq < 0.0 || freq > 2.0)
         err = WRONG_FREQUENCY_VALUE;
 
-
-
-    // if (cmd[2]) {
-    //     if (cmd[3]) {
-    //         if (freq_match(cmd[3]))
-    //             float freq = freq_determine(cmd[3]);
-    //     }
-
-    //     led_num = atoi(cmd[2]);
-
-    //     if (led_num == 1) {
-    //         led1_is_pulsing = 1;
-    //         xTaskCreate(led1_pulsing, "led1_pulsing", 4040, NULL, 10, NULL);
-    //     }
-    //     if (led_num == 2) {
-    //         led2_is_pulsing = 1;
-    //         xTaskCreate(led2_pulsing, "led2_pulsing", 4040, NULL, 10, NULL);
-    //     }
-    //     if (led_num == 3) {
-    //         led3_is_pulsing = 1;
-    //         xTaskCreate(led3_pulsing, "led3_pulsing", 4040, NULL, 10, NULL);
-    //     }
-    // }
-    // else {
-    //         led1_is_pulsing = 1;
-    //         led2_is_pulsing = 1;
-    //         led3_is_pulsing = 1;      
-    //         xTaskCreate(led1_pulsing, "led1_pulsing", 4040, NULL, 10, NULL);
-    //         xTaskCreate(led2_pulsing, "led2_pulsing", 4040, NULL, 10, NULL);
-    //         xTaskCreate(led3_pulsing, "led3_pulsing", 4040, NULL, 10, NULL);
-    // }
+    if (len > 4)
+        err = WRONG_SYNTAX_PULSE;
+    else if (cmd[2] == NULL || freq_match(cmd[2])) {
+        led1_is_pulsing = 1;
+        led2_is_pulsing = 1;
+        led3_is_pulsing = 1;      
+        xTaskCreate(led1_pulsing, "led1_pulsing", 4040, NULL, 10, NULL);
+        xTaskCreate(led2_pulsing, "led2_pulsing", 4040, NULL, 10, NULL);
+        xTaskCreate(led3_pulsing, "led3_pulsing", 4040, NULL, 10, NULL);
+    }
+    else {
+        led_num = atoi(cmd[2]);
+        if (led_num == 1) {
+            led1_is_pulsing = 1;
+            xTaskCreate(led1_pulsing, "led1_pulsing", 4040, NULL, 10, NULL);
+        }
+        if (led_num == 2) {
+            led2_is_pulsing = 1;
+            xTaskCreate(led2_pulsing, "led2_pulsing", 4040, NULL, 10, NULL);
+        }
+        if (led_num == 3) {
+            led3_is_pulsing = 1;
+            xTaskCreate(led3_pulsing, "led3_pulsing", 4040, NULL, 10, NULL);
+        }
+    }
     error_msg(err);
 }
