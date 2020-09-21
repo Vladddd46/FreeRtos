@@ -13,14 +13,12 @@
 
 
 void global_variables_init() {
-    led1_is_pulsing = 0;
-    led2_is_pulsing = 0;
-    led3_is_pulsing = 0;
+    led1_is_pulsing = LED_IS_OFF;
+    led2_is_pulsing = LED_IS_OFF;
+    led3_is_pulsing = LED_IS_OFF;
 
     global_queue_handle = xQueueCreate(5, COMMAND_LINE_MAX_LENGTH);
 }
-
-
 
 void app_main() {
     global_variables_init();

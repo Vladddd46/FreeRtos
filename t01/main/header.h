@@ -11,10 +11,8 @@
 #include "driver/ledc.h"
 #include <regex.h> 
 
-
 #define COMMAND_LINE_MAX_LENGTH 1024
 #define UART_PORT UART_NUM_1
-
 
 #define WRONG_SYNTAX_LED_ON_OFF 10
 #define INVALID_ARGUMENT        11
@@ -22,6 +20,11 @@
 #define NO_SUCH_COMMAND         13
 #define WRONG_SYNTAX_PULSE      14
 #define WRONG_FREQUENCY_VALUE   15
+
+/* LED states */
+#define LED_IS_OFF				20
+#define LED_IS_ON 				21
+#define LED_IS_PULSING 			22
 
 struct led_settings_description {
 	int   led_id;

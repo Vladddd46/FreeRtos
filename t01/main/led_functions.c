@@ -10,7 +10,7 @@ void led_on(char **cmd, int len) {
     int led_num;
 
     if (len == 2) {
-        if (led1_is_pulsing || led2_is_pulsing || led3_is_pulsing)
+        if (led1_is_pulsing == LED_IS_PULSING || led2_is_pulsing  == LED_IS_PULSING || led3_is_pulsing == LED_IS_PULSING)
             err = LED_BUSY;
         else
             all_led_set(1);
@@ -18,9 +18,9 @@ void led_on(char **cmd, int len) {
     else if (len == 3) {
         led_num = atoi(cmd[2]);
 
-        if ((led_num == 1 && led1_is_pulsing) 
-            || (led_num == 2 && led2_is_pulsing) 
-            || (led_num == 3 && led3_is_pulsing))
+        if ((led_num == 1 && led1_is_pulsing == LED_IS_PULSING) 
+            || (led_num == 2 && led2_is_pulsing == LED_IS_PULSING) 
+            || (led_num == 3 && led3_is_pulsing == LED_IS_PULSING))
             err = LED_BUSY;
         else if (led_num <= 0 || led_num > 3)
             err = INVALID_ARGUMENT;
@@ -46,9 +46,9 @@ void led_off(char **cmd, int len) {
 
     if (len == 2) {
         all_led_set(0);
-        led1_is_pulsing = 0;
-        led2_is_pulsing = 0;
-        led3_is_pulsing = 0;
+        led1_is_pulsing = LED_IS_OFF;
+        led2_is_pulsing = LED_IS_OFF;
+        led3_is_pulsing = LED_IS_OFF;
     }
     else if (len == 3) {
         led_num = atoi(cmd[2]);
@@ -56,9 +56,9 @@ void led_off(char **cmd, int len) {
             err = INVALID_ARGUMENT;
         else {
             led_set_by_id(led_num, 0);
-            if (led_num == 1) led1_is_pulsing = 0;
-            if (led_num == 2) led2_is_pulsing = 0;
-            if (led_num == 3) led3_is_pulsing = 0;
+            if (led_num == 1) led1_is_pulsing = LED_IS_OFF;
+            if (led_num == 2) led2_is_pulsing = LED_IS_OFF;
+            if (led_num == 3) led3_is_pulsing = LED_IS_OFF;
         }
     }
     else
@@ -128,9 +128,9 @@ void led_pulse(char **cmd, int len) {
     if (len > 4)
         err = WRONG_SYNTAX_PULSE;
     else if (cmd[2] == NULL || freq_match(cmd[2])) {
-        led1_is_pulsing = 1;
-        led2_is_pulsing = 1;
-        led3_is_pulsing = 1;
+        led1_is_pulsing = LED_IS_PULSING;
+        led2_is_pulsing = LED_IS_PULSING;
+        led3_is_pulsing = LED_IS_PULSING;
 
         struct led_settings_description *data1 = (struct led_settings_description *)malloc(sizeof(struct led_settings_description));
         data1->led_id = 1;
@@ -153,20 +153,20 @@ void led_pulse(char **cmd, int len) {
         if (led_num == 1) {
             data->led_id = 1;
             data->freq = freq;
-            led1_is_pulsing = 1;
+            led1_is_pulsing = LED_IS_PULSING;
             xTaskCreate(led1_pulsing, "led1_pulsing", 4040, (void *)data, 10, NULL);
         }
         if (led_num == 2) {
             data->led_id = 2;
             data->freq = freq;
-            led2_is_pulsing = 1;
+            led2_is_pulsing = LED_IS_PULSING;
             xTaskCreate(led1_pulsing, "led2_pulsing", 4040, (void *)data, 10, NULL);
         }
         if (led_num == 3) {
             data->led_id = 3;
             data->freq = freq;
-            led3_is_pulsing = 1;
-            xTaskCreate(led1_pulsing, "led2_pulsing", 4040, (void *)data, 10, NULL);
+            led3_is_pulsing = LED_IS_PULSING;
+            xTaskCreate(led1_pulsing, "led3_pulsing", 4040, (void *)data, 10, NULL);
         }
     }
     error_msg(err);

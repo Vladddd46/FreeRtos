@@ -40,26 +40,27 @@ int led_channel_determiner(int led_id) {
 
 void led1_pulsing(void *settings) {
     struct led_settings_description *data = (struct led_settings_description *)settings;
-
+    int led_id = data->led_id;
+    float freq = data->freq;
     // if (data != NULL)
-    printf("%d %f\n", data->led_id, data->freq);
+    printf("%d %f\n", led_id, freq);
 
     // timer configuration.
     ledc_timer_config_t ledc_timer;
     ledc_timer.speed_mode      = LEDC_HIGH_SPEED_MODE;
-    ledc_timer.freq_hz         = data->freq * 100;
+    ledc_timer.freq_hz         = freq * 100;
     ledc_timer.duty_resolution = LEDC_TIMER_8_BIT; // 256
-    ledc_timer.timer_num       = led_timer_determiner(data->led_id);
+    ledc_timer.timer_num       = led_timer_determiner(led_id);
     if(ledc_timer_config(&ledc_timer) != ESP_OK) 
         ESP_LOGI("ledc_timer_config ", "%s", "some error occured");
 
     // chanel configuration.
     ledc_channel_config_t ledc_channel;
-    ledc_channel.gpio_num   = led_gpio_determine(data->led_id);
+    ledc_channel.gpio_num   = led_gpio_determine(led_id);
     ledc_channel.speed_mode = LEDC_HIGH_SPEED_MODE;
-    ledc_channel.channel    = led_channel_determiner(data->led_id);
+    ledc_channel.channel    = led_channel_determiner(led_id);
     ledc_channel.intr_type  = LEDC_INTR_FADE_END;
-    ledc_channel.timer_sel  = led_timer_determiner(data->led_id);
+    ledc_channel.timer_sel  = led_timer_determiner(led_id);
     ledc_channel.duty       = 0;
 
     if (ledc_channel_config(&ledc_channel) != ESP_OK) 
@@ -68,11 +69,11 @@ void led1_pulsing(void *settings) {
         ESP_LOGI("ledc_fade_func_install ", "%s", "some error occured");
 
      while(1) {
-        if (data->led_id == 1 && led1_is_pulsing == 0)
+        if (led_id == 1 && led1_is_pulsing == LED_IS_OFF)
             vTaskDelete(NULL);
-        else if (data->led_id == 2 && led2_is_pulsing == 0)
+        else if (led_id == 2 && led2_is_pulsing == LED_IS_OFF)
             vTaskDelete(NULL);
-        else if (data->led_id == 3 && led3_is_pulsing == 0)
+        else if (led_id == 3 && led3_is_pulsing == LED_IS_OFF)
             vTaskDelete(NULL);
 
         // ascending.
