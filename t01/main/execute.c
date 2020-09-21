@@ -8,6 +8,8 @@ void led_commands(char **cmd, int len) {
         led_off(cmd, len);
     else if  (cmd[1] && !strcmp(cmd[1], "pulse"))
         led_pulse(cmd, len);
+    else
+        error_msg(NO_SUCH_COMMAND);
 }
 
 /*
