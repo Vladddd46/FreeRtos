@@ -15,6 +15,13 @@
 #define COMMAND_LINE_MAX_LENGTH 1024
 #define UART_PORT UART_NUM_1
 
+
+#define WRONG_SYNTAX_LED_ON_OFF 10
+#define INVALID_ARGUMENT        11
+#define LED_BUSY                12
+#define NO_SUCH_COMMAND         13
+#define WRONG_SYNTAX_PULSE      14
+
 int led1_is_pulsing;
 int led2_is_pulsing;
 int led3_is_pulsing;
@@ -34,6 +41,7 @@ void user_input();
 void cmd_handler();
 
 void execute(char **cmd, int len);
+void error_msg(int err);
 
 /* led functions */
 void led_on(char **cmd, int len);

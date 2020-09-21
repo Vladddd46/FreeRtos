@@ -4,26 +4,6 @@
 #define GPIO_LED2 26
 #define GPIO_LED3 33
 
-#define WRONG_SYNTAX     10
-#define INVALID_ARGUMENT 11
-#define LED_BUSY         12
-
-void eror_msg(int err) {
-    char *msg;
-    if (err == INVALID_ARGUMENT) {
-        msg = "\e[31minvalid led number|\e[33m led on/off [1-3]\e[0m\n\r";
-        uart_write_bytes(UART_PORT, msg, strlen(msg));
-    }
-    else if (err == WRONG_SYNTAX) {
-        msg = "\e[31mwrong syntax|\e[33m led on/off [1-3]\e[0m\n\r";
-        uart_write_bytes(UART_PORT, msg, strlen(msg));
-    }
-    else if (err == LED_BUSY) {
-        msg = "\e[31m led is busy| led[s] you are trying to turn on is[are] busy.\n\rTurn off your led in order\
-to do manipulations with it.\e[33msyntax: led off led_number(1-3)\e[0m\n\r";
-        uart_write_bytes(UART_PORT, msg, strlen(msg));
-    }
-}
 
 void led_on(char **cmd, int len) {
     int err = 0;
@@ -48,9 +28,9 @@ void led_on(char **cmd, int len) {
             led_set_by_id(led_num, 1);
     }
     else
-        err = WRONG_SYNTAX;
+        err = WRONG_SYNTAX_LED_ON_OFF;
 
-    eror_msg(err);
+    error_msg(err);
 }
 
 
@@ -82,10 +62,26 @@ void led_off(char **cmd, int len) {
         }
     }
     else
-        err = WRONG_SYNTAX;
+        err = WRONG_SYNTAX_LED_ON_OFF;
 
-    eror_msg(err);
+    error_msg(err);
 }
+
+
+float freq_determine(char *subcmd) {
+    char *freq_str = (char *)malloc(5 * sizeof(char));
+    bzero(freq_str, 5);
+
+    int index = 0;
+    for (int i = 2; subcmd[i]; ++i) {
+        freq_str[index] = subcmd[i];
+        index++;
+    }
+    float freq = atof(freq_str);
+    free(freq_str);
+    return freq;
+}
+
 
 void led_pulse(char **cmd, int len) {
     int err = 0;
@@ -101,11 +97,11 @@ void led_pulse(char **cmd, int len) {
             }
             /* Execute regular expression */
             reti = regexec(&regex, cmd[3], 0, NULL, 0);
-            if (!reti){
-                printf("MATCH\n");
+            if (!reti) {
+                float freq = freq_determine(cmd[3]);
             }
             else if (reti == REG_NOMATCH){
-                err = WRONG_SYNTAX;
+                err = WRONG_SYNTAX_PULSE;
             }
         }
 
@@ -136,5 +132,5 @@ void led_pulse(char **cmd, int len) {
             xTaskCreate(led3_pulsing, "led3_pulsing", 4040, NULL, 10, NULL);
         }
     }
-    eror_msg(err);
+    error_msg(err);
 }

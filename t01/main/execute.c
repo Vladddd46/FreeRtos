@@ -17,8 +17,9 @@ void led_commands(char **cmd, int len) {
 void execute(char **cmd, int len) {
     if (cmd[0] && !strcmp(cmd[0], "led"))
         led_commands(cmd, len);
-    else {
-        char *msg = "\e[31mERROR: No such command.\e[36m Write \e[32mhelp \e[36mto list all supported commands.\e[0m\n\r";
-        uart_write_bytes(UART_PORT, msg, strlen(msg));
+    else if (len == 0) {
+        // pass
     }
+    else 
+        error_msg(NO_SUCH_COMMAND);
 }
