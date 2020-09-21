@@ -5,7 +5,12 @@
 #define LED3 33
 
 
-void led1_pulsing() {
+void led1_pulsing(void *settings) {
+    struct led_settings_description *data = (struct led_settings_description *)settings;
+
+    if (data != NULL)
+    printf("%d %f\n", data->led_id, data->freq);
+
     // timer configuration.
     ledc_timer_config_t ledc_timer;
     ledc_timer.speed_mode      = LEDC_HIGH_SPEED_MODE;

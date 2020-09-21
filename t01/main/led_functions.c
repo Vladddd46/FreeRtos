@@ -115,6 +115,7 @@ void led_pulse(char **cmd, int len) {
     int err = 0;
     int led_num;
     float freq = 1;
+    struct led_settings_description *data = (struct led_settings_description *)malloc(sizeof(struct led_settings_description));
 
     if (freq_match(cmd[2]))
         freq = freq_determine(cmd[2]);
@@ -136,9 +137,12 @@ void led_pulse(char **cmd, int len) {
     }
     else {
         led_num = atoi(cmd[2]);
+
         if (led_num == 1) {
+            data->led_id = 1;
+            data->freq = freq;
             led1_is_pulsing = 1;
-            xTaskCreate(led1_pulsing, "led1_pulsing", 4040, NULL, 10, NULL);
+            xTaskCreate(led1_pulsing, "led1_pulsing", 4040, (void *)data, 10, NULL);
         }
         if (led_num == 2) {
             led2_is_pulsing = 1;

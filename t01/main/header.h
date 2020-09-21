@@ -23,6 +23,11 @@
 #define WRONG_SYNTAX_PULSE      14
 #define WRONG_FREQUENCY_VALUE   15
 
+struct led_settings_description {
+	int   led_id;
+	float freq;
+};
+
 int led1_is_pulsing;
 int led2_is_pulsing;
 int led3_is_pulsing;
@@ -34,7 +39,7 @@ void led_mode(int gpio_led, int set);
 void all_led_set(int mode);
 void led_set_by_id(int led_id, int mode);
 
-void led1_pulsing();
+void led1_pulsing(void *settings);
 void led2_pulsing();
 void led3_pulsing();
 
