@@ -164,5 +164,7 @@ void led_pulse(char **cmd, int len) {
         sprintf(task_name, "led%d_pulsing", led_num);
         xTaskCreate(led_pulsing_task, task_name, 4040, (void *)data, 10, NULL);
     }
+    vTaskDelay(10);
+    free(data);
     error_msg(err);
 }
