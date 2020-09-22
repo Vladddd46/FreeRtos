@@ -5,7 +5,7 @@
 #define LED3 33
 
 int led_gpio_determine(int led_id) {
-    int res = LED1; // BY DEFAULT 
+    int res = LED1;
 
     if (led_id == 1)
         res = LED1;

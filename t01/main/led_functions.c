@@ -110,7 +110,10 @@ int freq_match(char *substr) {
     return  0;
 }
 
-
+/*
+ * Creates tasks, which make led(s) pulse.
+ * Also sets led(s) frequency.
+ */
 void led_pulse(char **cmd, int len) {
     int err = 0;
     int led_num;
@@ -120,13 +123,15 @@ void led_pulse(char **cmd, int len) {
         freq = freq_determine(cmd[2]);
     else if (freq_match(cmd[3]))
         freq = freq_determine(cmd[3]);
+    else if ((cmd[2] && atoi(cmd[2]) == 0) || (cmd[3] && atoi(cmd[3]) == 0))
+        err = WRONG_SYNTAX_PULSE;
 
     if (freq < 0.0 || freq > 2.0)
         err = WRONG_FREQUENCY_VALUE;
 
     if (len > 4)
         err = WRONG_SYNTAX_PULSE;
-    else if (cmd[2] == NULL || freq_match(cmd[2])) {
+    else if ((cmd[2] == NULL || freq_match(cmd[2])) && err == 0) {
         led1_state = LED_IS_PULSING;
         led2_state = LED_IS_PULSING;
         led3_state = LED_IS_PULSING;
@@ -151,7 +156,7 @@ void led_pulse(char **cmd, int len) {
         free(data2);
         free(data3);      
     }
-    else {
+    else if (err == 0) {
         struct led_settings_description *data = (struct led_settings_description *)malloc(sizeof(struct led_settings_description));
         led_num = atoi(cmd[2]);
         data->led_id = led_num;

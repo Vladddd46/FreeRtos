@@ -28,9 +28,8 @@ void help() {
 void execute(char **cmd, int len) {
     if (cmd[0] && !strcmp(cmd[0], "led"))
         led_commands(cmd, len);
-    else if (cmd[0] && !strcmp(cmd[0], "help")) {
+    else if (cmd[0] && !strcmp(cmd[0], "help"))
         help();
-    }
     else if (len == 0) {
         // pass
     }
