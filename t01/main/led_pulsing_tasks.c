@@ -38,7 +38,7 @@ int led_channel_determiner(int led_id) {
     return channel;
 }
 
-void led1_pulsing(void *settings) {
+void led_pulsing_task(void *settings) {
     struct led_settings_description *data = (struct led_settings_description *)settings;
     int led_id = data->led_id;
     float freq = data->freq;

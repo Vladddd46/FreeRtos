@@ -41,7 +41,7 @@ void led_mode(int gpio_led, int set);
 void all_led_set(int mode);
 void led_set_by_id(int led_id, int mode);
 
-void led1_pulsing(void *settings);
+void led_pulsing_task(void *settings);
 
 void user_input();
 void cmd_handler();
