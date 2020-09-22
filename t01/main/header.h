@@ -33,24 +33,23 @@ struct led_settings_description {
 int led1_state;
 int led2_state;
 int led3_state;
+
 xQueueHandle global_queue_handle;
 QueueHandle_t uart0_queue;
 
-
-void led_mode(int gpio_led, int set);
-void all_led_set(int mode);
-void led_set_by_id(int led_id, int mode);
-
-void led_pulsing_task(void *settings);
-
 void user_input();
 void cmd_handler();
-void uart_init(int baud_rate);
-
 void execute(char **cmd, int len);
+
 void error_msg(int err);
+void uart_init(int baud_rate);
 
 /* led functions */
 void led_on(char **cmd, int len);
 void led_off(char **cmd, int len);
 void led_pulse(char **cmd, int len);
+
+void led_mode(int gpio_led, int set);
+void all_led_set(int mode);
+void led_set_by_id(int led_id, int mode);
+void led_pulsing_task(void *settings);
