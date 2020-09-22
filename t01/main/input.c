@@ -2,6 +2,7 @@
 
 #define LF_ASCII_CODE 0xA
 #define CR_ASCII_CODE 0xD // \r the same
+#define BACK_SPACE    127
 
 /*
  * Reads user`s input from UART2 and stores it in comman_Line string.
@@ -9,7 +10,7 @@
  * task through queue.
  */
 void user_input() {
-    char *msg = "\n\rSorry, but you command can`t be longer than 30 symbols.\n\r";
+    char *msg = "\n\rSorry, but command can`t be longer than 30 symbols.\n\r";
     uart_event_t event;
     const char *prompt = "Enter your command : ";
     uint8_t command_line[COMMAND_LINE_MAX_LENGTH];
@@ -40,10 +41,23 @@ void user_input() {
                         index = 0;
                         break;
                     }
+                    else if (buf[0] == BACK_SPACE && buf_size == 1) {
+                        if (index > 0) {
+                            char c = 8;
+                            char *tmp = &c;
+                            uart_write_bytes(UART_PORT, tmp, 1);
+                            uart_write_bytes(UART_PORT, " ", 1);
+                            uart_write_bytes(UART_PORT, tmp, 1);
+                            command_line[index - 1] = '\0';
+                            index -= 1;
+                        }
+                    }
                     uart_write_bytes(UART_PORT, buf, strlen((char *)buf));
                     for (int i = 0; buf[i]; ++i) {
-                        command_line[index] = buf[i];
-                        index++;
+                        if (buf[i] != BACK_SPACE) {
+                            command_line[index] = buf[i];
+                            index++;
+                        }
                     }
                     free(buf);
                 }
