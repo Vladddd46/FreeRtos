@@ -42,8 +42,6 @@ void led1_pulsing(void *settings) {
     struct led_settings_description *data = (struct led_settings_description *)settings;
     int led_id = data->led_id;
     float freq = data->freq;
-    // if (data != NULL)
-    printf("%d %f\n", led_id, freq);
 
     // timer configuration.
     ledc_timer_config_t ledc_timer;

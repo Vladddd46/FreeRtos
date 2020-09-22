@@ -16,7 +16,7 @@ void user_input() {
     uint8_t command_line[COMMAND_LINE_MAX_LENGTH];
     size_t buf_size    = 0;
     uint8_t *buf       = NULL;
-    int index = 0;
+    int index          = 0;
 
     while(1) {
         bzero(command_line, COMMAND_LINE_MAX_LENGTH);
