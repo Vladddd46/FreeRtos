@@ -9,55 +9,46 @@
  * task through queue.
  */
 void user_input() {
+    char *msg = "\n\rSorry, but you command can`t be longer than 30 symbols.\n\r";
+    uart_event_t event;
     const char *prompt = "Enter your command : ";
     uint8_t command_line[COMMAND_LINE_MAX_LENGTH];
+    size_t buf_size    = 0;
+    uint8_t *buf       = NULL;
+    int index = 0;
 
     while(1) {
         bzero(command_line, COMMAND_LINE_MAX_LENGTH);
-        int  i = 0;
-        bool quit = false;
         uart_write_bytes(UART_PORT, prompt, strlen(prompt));
 
-        do {
-            uart_flush_input(UART_PORT);
-            int r = uart_read_bytes(UART_PORT, &command_line[i], 1, (200 / portTICK_PERIOD_MS));
-
-            if (r == 1) {
-                if (command_line[i] != 127) {
-                    char *tmp = (char *)&command_line[i];
-                    uart_write_bytes(UART_PORT, (const char *)tmp, 1);
-                    i++;
-                }
-                else if (command_line[i] == 127 ) {
-                    if (i == 0)
-                        command_line[i] = '\0';
-                    else {
-                        char c = 8;
-                        char *tmp = &c;
-                        uart_write_bytes(UART_PORT, tmp, 1);
-                        uart_write_bytes(UART_PORT, " ", 1);
-                        uart_write_bytes(UART_PORT, tmp, 1);
-                        command_line[i] = '\0';
-                        i -= 1;
-                        command_line[i] = '\0';
+        while (1) {
+            if (xQueueReceive(uart0_queue, (void * )&event, (portTickType)portMAX_DELAY)) {
+                if (event.type == UART_DATA) {
+                    uart_get_buffered_data_len(UART_PORT, &buf_size);
+                    if (buf_size > 30 || index > 30) {
+                        uart_write_bytes(UART_PORT, msg, strlen(msg));
+                        index = 0;
+                        break;
                     }
+                    buf = malloc(sizeof(uint8_t) * (buf_size + 1));
+                    memset(buf, '\0', buf_size + 1);
+                    uart_read_bytes(UART_PORT, buf, buf_size + 1, buf_size);
+                    if (buf[0] == CR_ASCII_CODE && buf_size == 1) {
+                        uart_write_bytes(UART_PORT, "\n\r", strlen("\n\r"));
+                        if (!xQueueSend(global_queue_handle, command_line, (200 / portTICK_PERIOD_MS)))
+                            printf("Failed to send data in queue\n");
+                        index = 0;
+                        break;
+                    }
+                    uart_write_bytes(UART_PORT, buf, strlen((char *)buf));
+                    for (int i = 0; buf[i]; ++i) {
+                        command_line[index] = buf[i];
+                        index++;
+                    }
+                    free(buf);
                 }
             }
-            
-            if (r != -1) {
-                char *p = strchr((const char *)command_line, CR_ASCII_CODE);
-                if (p != NULL) {
-                    uart_write_bytes(UART_PORT, "\n\r", 2);
-                    int index = p - (char *)command_line;
-                    command_line[index] = '\0';
-                    quit = true;
-                }
-            }
-        } while(!quit && i < COMMAND_LINE_MAX_LENGTH);
-
-        if (!xQueueSend(global_queue_handle, command_line, (200 / portTICK_PERIOD_MS)))
-            printf("Failed to send data in queue\n");
-        vTaskDelay(1);
+        }
     }
 }
 

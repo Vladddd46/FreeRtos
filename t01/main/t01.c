@@ -13,9 +13,9 @@
 
 
 void global_variables_init() {
-    led1_is_pulsing = LED_IS_OFF;
-    led2_is_pulsing = LED_IS_OFF;
-    led3_is_pulsing = LED_IS_OFF;
+    led1_state = LED_IS_OFF;
+    led2_state = LED_IS_OFF;
+    led3_state = LED_IS_OFF;
 
     global_queue_handle = xQueueCreate(5, COMMAND_LINE_MAX_LENGTH);
 }
@@ -34,6 +34,6 @@ void app_main() {
      *  command to execute.
      * PS. user_input and cmd_handler are declared in input.c
      */
-    xTaskCreate(user_input,  "user_input",  4040, NULL, 10, NULL);
-    xTaskCreate(cmd_handler, "cmd_handler", 4040, NULL, 10, NULL);
+    xTaskCreate(user_input,  "user_input",  12040, NULL, 10, NULL);
+    xTaskCreate(cmd_handler, "cmd_handler", 12040, NULL, 10, NULL);
 }

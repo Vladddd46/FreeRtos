@@ -1,4 +1,4 @@
-#include "general.h"
+#include "header.h"
 
 #define CMD_MAX_LENGTH 1024
 #define UART_TX_PIN 17
@@ -13,7 +13,8 @@ void uart_init(int baud_rate) {
         .stop_bits = UART_STOP_BITS_1,
         .flow_ctrl = UART_HW_FLOWCTRL_DISABLE
     };
+    uart_driver_install(UART, 2048, 2048, 20, &uart0_queue, 0);
     uart_param_config(UART, &uart_config);
     uart_set_pin(UART, UART_TX_PIN, UART_RX_PIN, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
-    uart_driver_install(UART, CMD_MAX_LENGTH * 2, 0, 0, NULL, 0);
+    uart_pattern_queue_reset(UART, 20);
 }

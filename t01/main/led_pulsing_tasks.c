@@ -69,11 +69,11 @@ void led1_pulsing(void *settings) {
         ESP_LOGI("ledc_fade_func_install ", "%s", "some error occured");
 
      while(1) {
-        if (led_id == 1 && led1_is_pulsing == LED_IS_OFF)
+        if (led_id == 1 && led1_state == LED_IS_OFF)
             vTaskDelete(NULL);
-        else if (led_id == 2 && led2_is_pulsing == LED_IS_OFF)
+        else if (led_id == 2 && led2_state == LED_IS_OFF)
             vTaskDelete(NULL);
-        else if (led_id == 3 && led3_is_pulsing == LED_IS_OFF)
+        else if (led_id == 3 && led3_state == LED_IS_OFF)
             vTaskDelete(NULL);
 
         // ascending.
