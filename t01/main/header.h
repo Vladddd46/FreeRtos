@@ -11,7 +11,7 @@
 #include <regex.h> 
 
 #define COMMAND_LINE_MAX_LENGTH 1024
-#define UART_PORT UART_NUM_1
+#define UART_PORT UART_NUM_0
 
 #define WRONG_SYNTAX_LED_ON_OFF 10
 #define INVALID_ARGUMENT        11

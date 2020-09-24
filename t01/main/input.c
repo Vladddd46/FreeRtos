@@ -29,6 +29,7 @@ void user_input() {
                     if (buf_size > 30 || index > 30) {
                         uart_write_bytes(UART_PORT, msg, strlen(msg));
                         index = 0;
+                        buf_size = 0;
                         break;
                     }
                     buf = malloc(sizeof(uint8_t) * (buf_size + 1));
@@ -52,7 +53,7 @@ void user_input() {
                             index -= 1;
                         }
                     }
-                    uart_write_bytes(UART_PORT, buf, strlen((char *)buf));
+                    uart_write_bytes(UART_PORT, (const char *)buf, strlen((const char *)buf));
                     for (int i = 0; buf[i]; ++i) {
                         if (buf[i] != BACK_SPACE) {
                             command_line[index] = buf[i];
