@@ -9,6 +9,7 @@
 #include "driver/dac.h"
 #include "driver/ledc.h"
 #include <regex.h> 
+#include "get_dht11_data.h"
 
 #define COMMAND_LINE_MAX_LENGTH 1024
 #define UART_PORT UART_NUM_0
@@ -36,6 +37,7 @@ int led3_state;
 
 xQueueHandle global_queue_handle;
 QueueHandle_t uart0_queue;
+QueueHandle_t dht11_data_queue;
 
 void user_input();
 void cmd_handler();
@@ -53,3 +55,5 @@ void led_mode(int gpio_led, int set);
 void all_led_set(int mode);
 void led_set_by_id(int led_id, int mode);
 void led_pulsing_task(void *settings);
+
+void dht11_monitor();

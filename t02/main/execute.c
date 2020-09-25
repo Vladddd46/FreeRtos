@@ -21,6 +21,23 @@ void help() {
     uart_write_bytes(UART_PORT, msg, strlen(msg));
 }
 
+void dht11_log() {
+    char buff[70];
+
+    if (dht11_data_queue != 0) {
+
+        while(1) {
+            bzero(buff, 70);
+            xQueueReceive(dht11_data_queue, (void *)buff, (TickType_t)0);
+            if (strlen((char *)buff) == 0)
+                break;
+            uart_write_bytes(UART_PORT, "\n\r", strlen("\n\r"));
+            uart_write_bytes(UART_PORT, (const char*)buff, strlen((const char*)buff));
+        }
+        uart_write_bytes(UART_PORT, "\n\r", strlen("\n\r"));
+    }
+}
+
 /*
  * Determines the type of program
  * to be executed.
@@ -30,6 +47,9 @@ void execute(char **cmd, int len) {
         led_commands(cmd, len);
     else if (cmd[0] && !strcmp(cmd[0], "help"))
         help();
+    else if (cmd[0] && !strcmp(cmd[0], "log")) {
+        dht11_log();
+    }
     else if (len == 0) {
         // pass
     }

@@ -21,7 +21,7 @@ void user_input() {
     while(1) {
         bzero(command_line, COMMAND_LINE_MAX_LENGTH);
         uart_write_bytes(UART_PORT, prompt, strlen(prompt));
-
+        
         while (1) {
             if (xQueueReceive(uart0_queue, (void * )&event, (portTickType)portMAX_DELAY)) {
                 if (event.type == UART_DATA) {
