@@ -68,6 +68,18 @@ void user_input() {
 }
 
 
+char *upper_to_lower(char *str) {
+    int len = strlen((const char *)strlen) + 1;
+    char *new_str = (char *)malloc(len * sizeof(char));
+    bzero(new_str, len);
+
+    for (int i = 0; str[i]; ++i) {
+        if(str[i] >= 65 && str[i] <= 90)
+            new_str[i] = str[i] + 32;
+    }
+    return new_str;
+}
+
 
 
 /*
@@ -84,7 +96,6 @@ void cmd_handler() {
     while(1) {
         if (xQueueReceive(global_queue_handle, result, (200 / portTICK_PERIOD_MS))) {
             for (int i = 0; i < 100; ++i) cmd[i] = NULL;
-
             // splitting str into arr.
             int index = 0;
             char *p;
