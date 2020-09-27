@@ -19,6 +19,7 @@ void led_commands(char **cmd, int len) {
  * to be executed.
  */
 void execute(char **cmd, int len) {
+    is_executing = 1;
     if (cmd[0] && !strcmp(cmd[0], "led"))
         led_commands(cmd, len);
     else if (cmd[0] && !strcmp(cmd[0], "help"))
@@ -31,5 +32,6 @@ void execute(char **cmd, int len) {
     }
     else 
         error_msg(NO_SUCH_COMMAND);
+    is_executing = 0;
 }
 

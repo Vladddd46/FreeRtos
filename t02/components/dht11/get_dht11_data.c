@@ -94,9 +94,9 @@ char *get_dht11_data(int dht11_power_pin, int dht11_data_pin) {
         return NULL;
     }
 
-    char result[50];
-    bzero(result, 50);
-    sprintf(result, "temperature: %d; humidity: %d", data[2], data[0]);
+    char result[100];
+    bzero(result, 100);
+    sprintf(result, "temperature: \e[31m%d C\e[0m; humidity: \e[31m%d%%\e[0m", data[2], data[0]);
 
     char *ret = (char *)malloc((strlen(result) + 1) * sizeof(char));
     bzero(ret, strlen(result) + 1);

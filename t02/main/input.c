@@ -19,6 +19,8 @@ void user_input() {
     int index          = 0;
 
     while(1) {
+        while (is_executing == 1)
+            vTaskDelay(50);
         bzero(command_line, COMMAND_LINE_MAX_LENGTH);
         uart_write_bytes(UART_PORT, prompt, strlen(prompt));
         
@@ -69,18 +71,6 @@ void user_input() {
 }
 
 
-char *upper_to_lower(char *str) {
-    int len = strlen((const char *)strlen) + 1;
-    char *new_str = mx_strnew(len);
-
-    for (int i = 0; str[i]; ++i) {
-        if(str[i] >= 65 && str[i] <= 90)
-            new_str[i] = str[i] + 32;
-    }
-    return new_str;
-}
-
-
 
 /*
  * Receives user`s input from Queue.
@@ -91,15 +81,17 @@ char *upper_to_lower(char *str) {
 void cmd_handler() {
     char result[1000];
     bzero(result, 1000);
+    char *result_lower;
 
     char **cmd = mx_strarr_new(100);
     while(1) {
         if (xQueueReceive(global_queue_handle, result, (200 / portTICK_PERIOD_MS))) {
             for (int i = 0; i < 100; ++i) cmd[i] = NULL;
+            result_lower = mx_upper_to_lower(result);
             // splitting str into arr.
             int index = 0;
             char *p;
-            p = strtok(result, " ");
+            p = strtok(result_lower, " ");
             cmd[index] = p;
             index++;
             while(p != NULL || index < 100) {
@@ -111,6 +103,7 @@ void cmd_handler() {
             int cmd_len = 0;
             while(cmd[cmd_len] && cmd_len < 100) cmd_len++;
             execute(cmd, cmd_len);
+            free(result_lower);
         }
     }
 }

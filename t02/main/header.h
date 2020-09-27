@@ -44,6 +44,8 @@ int led1_state;
 int led2_state;
 int led3_state;
 
+int is_executing;
+
 xQueueHandle  global_queue_handle;
 QueueHandle_t uart0_queue;
 QueueHandle_t dht11_data_queue;

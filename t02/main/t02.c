@@ -19,6 +19,7 @@ void global_variables_init() {
     led2_state = LED_IS_OFF;
     led3_state = LED_IS_OFF;
 
+    is_executing = 0;
     global_queue_handle = xQueueCreate(5, COMMAND_LINE_MAX_LENGTH);
 }
 
