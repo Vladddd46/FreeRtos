@@ -1,9 +1,5 @@
 #include "header.h"
 
-#define LED1 27
-#define LED2 26
-#define LED3 33
-
 int led_gpio_determine(int led_id) {
     int res = LED1;
 

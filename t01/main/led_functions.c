@@ -1,8 +1,8 @@
 #include "header.h"
 
-#define GPIO_LED1 27
-#define GPIO_LED2 26
-#define GPIO_LED3 33
+#define LED1 27
+#define LED2 26
+#define LED3 33
 
 
 void led_on(char **cmd, int len) {

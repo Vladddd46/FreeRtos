@@ -20,4 +20,3 @@ to do manipulations with it.\e[33msyntax: led off led_number(1-3)\e[0m\n\r";
 
     if (msg) uart_write_bytes(UART_PORT, msg, strlen(msg));
 }
-

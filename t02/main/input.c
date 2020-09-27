@@ -33,6 +33,7 @@ void user_input() {
                         break;
                     }
                     buf = malloc(sizeof(uint8_t) * (buf_size + 1));
+                    if (buf == NULL) exit(1);
                     memset(buf, '\0', buf_size + 1);
                     uart_read_bytes(UART_PORT, buf, buf_size + 1, buf_size);
                     if (buf[0] == CR_ASCII_CODE && buf_size == 1) {
@@ -70,8 +71,7 @@ void user_input() {
 
 char *upper_to_lower(char *str) {
     int len = strlen((const char *)strlen) + 1;
-    char *new_str = (char *)malloc(len * sizeof(char));
-    bzero(new_str, len);
+    char *new_str = mx_strnew(len);
 
     for (int i = 0; str[i]; ++i) {
         if(str[i] >= 65 && str[i] <= 90)
@@ -92,7 +92,7 @@ void cmd_handler() {
     char result[1000];
     bzero(result, 1000);
 
-    char **cmd = (char **)malloc(100 * sizeof(char *));
+    char **cmd = mx_strarr_new(100);
     while(1) {
         if (xQueueReceive(global_queue_handle, result, (200 / portTICK_PERIOD_MS))) {
             for (int i = 0; i < 100; ++i) cmd[i] = NULL;

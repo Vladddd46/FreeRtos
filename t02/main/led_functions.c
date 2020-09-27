@@ -1,10 +1,5 @@
 #include "header.h"
 
-#define GPIO_LED1 27
-#define GPIO_LED2 26
-#define GPIO_LED3 33
-
-
 void led_on(char **cmd, int len) {
     int err = 0;
     int led_num;
@@ -63,7 +58,6 @@ void led_off(char **cmd, int len) {
     }
     else
         err = WRONG_SYNTAX_LED_ON_OFF;
-
     error_msg(err);
 }
 
@@ -73,13 +67,12 @@ void led_off(char **cmd, int len) {
  * Retrieves 
  *
  */
-float freq_determine(char *subcmd) {
-    if (subcmd == NULL)
+static float freq_determine(char *subcmd) {
+    if (subcmd == NULL) 
         return -1;
-    char *freq_str = (char *)malloc(5 * sizeof(char));
-    bzero(freq_str, 5);
-
+    char *freq_str = mx_strnew(5);
     int index = 0;
+
     for (int i = 2; subcmd[i]; ++i) {
         freq_str[index] = subcmd[i];
         index++;
@@ -96,7 +89,7 @@ float freq_determine(char *subcmd) {
  * frequency subcommand pattern.
  * ^f=x.y$ , where 0 <= x <= 2, 0 <= y <= 9
  */
-int freq_match(char *substr) {
+static int freq_match(char *substr) {
     if (substr == NULL)
         return 0;
     regex_t regex;
