@@ -1,5 +1,7 @@
 #include "header.h"
 
+
+
 // Determines type of led cmd.
 void led_commands(char **cmd, int len) {
     if (cmd[1] && !strcmp(cmd[1], "on"))
@@ -25,7 +27,7 @@ void execute(char **cmd, int len) {
     else if (cmd[0] && !strcmp(cmd[0], "help"))
         help_command();
     else if (cmd[0] && !strcmp(cmd[0], "tehu")) {
-        dht11_log();
+        dht11_log(cmd);
     }
     else if (len == 0) {
         // pass

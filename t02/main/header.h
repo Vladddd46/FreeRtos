@@ -15,6 +15,7 @@
 /* Config */
 #define COMMAND_LINE_MAX_LENGTH 1024
 #define UART_PORT UART_NUM_1
+#define NEWLINE "\n\r"
 
 /* Errors */
 #define WRONG_SYNTAX_LED_ON_OFF 10
@@ -60,7 +61,7 @@ void uart_init(int baud_rate);
 
 /* dht11 fucntions */
 void dht11_monitor();
-void dht11_log();
+void dht11_log(char **cmd);
 
 void help_command();
 
