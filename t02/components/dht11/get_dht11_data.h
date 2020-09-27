@@ -12,4 +12,4 @@
 #include <string.h>
 
 
-char *get_dht11_data(int dht11_power_pin, int dht11_data_pin, int mode);
+char *get_dht11_data(int dht11_power_pin, int dht11_data_pin);

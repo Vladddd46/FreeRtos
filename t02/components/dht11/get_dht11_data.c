@@ -56,7 +56,7 @@ static int preparing_for_receiving_data(int gpio) {
 
 
 
-char *get_dht11_data(int dht11_power_pin, int dht11_data_pin, int mode) {
+char *get_dht11_data(int dht11_power_pin, int dht11_data_pin) {
     gpio_set_direction_wrapper(dht11_power_pin, GPIO_MODE_OUTPUT);
     gpio_set_level_wrapper(dht11_power_pin, 1);
 
@@ -71,7 +71,7 @@ char *get_dht11_data(int dht11_power_pin, int dht11_data_pin, int mode) {
     for (int i = 1, j = 0; i < 41; i++) {
         if ((res = wait_status(50, 0, dht11_data_pin)) == -1) {
             printf("%s\n", "Error during sending data.");
-             break;
+            break;
         }
         if ((res = wait_status(70, 1, dht11_data_pin)) == -1) {
             printf("%s\n", "Error during sending data.");
