@@ -21,21 +21,43 @@ void help() {
     uart_write_bytes(UART_PORT, msg, strlen(msg));
 }
 
+char *string_copy(char *str) {
+    int len = strlen(str) + 1;
+    char *new = (char *)malloc(len * sizeof(char));
+    if (new == NULL) exit(1);
+    bzero(new, len);
+    for (int i = 0; str[i]; ++i) 
+        new[i] = str[i];
+    return new;
+}
+
 void dht11_log() {
     char buff[70];
+    char **data = (char **)malloc(61 * sizeof(char *));
+    for (int i = 0; i < 61; ++i) data[i] = NULL;
 
+    int index = 0;
+
+    vTaskSuspend(xTaskWeather);
     if (dht11_data_queue != 0) {
-
         while(1) {
             bzero(buff, 70);
             xQueueReceive(dht11_data_queue, (void *)buff, (TickType_t)0);
             if (strlen((char *)buff) == 0)
                 break;
+            data[index] = string_copy(buff);
+            index++;
+        }
+
+
+        for (int i = 0; data[i]; ++i) {
+            xQueueSend(dht11_data_queue,(void *)data[i], (TickType_t)0);
             uart_write_bytes(UART_PORT, "\n\r", strlen("\n\r"));
-            uart_write_bytes(UART_PORT, (const char*)buff, strlen((const char*)buff));
+            uart_write_bytes(UART_PORT, (const char*)data[i], strlen((const char*)data[i]));
         }
         uart_write_bytes(UART_PORT, "\n\r", strlen("\n\r"));
     }
+    vTaskResume(xTaskWeather);
 }
 
 /*

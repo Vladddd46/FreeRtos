@@ -12,7 +12,7 @@
 #include "get_dht11_data.h"
 
 #define COMMAND_LINE_MAX_LENGTH 1024
-#define UART_PORT UART_NUM_0
+#define UART_PORT UART_NUM_1
 
 #define WRONG_SYNTAX_LED_ON_OFF 10
 #define INVALID_ARGUMENT        11
@@ -38,6 +38,7 @@ int led3_state;
 xQueueHandle global_queue_handle;
 QueueHandle_t uart0_queue;
 QueueHandle_t dht11_data_queue;
+TaskHandle_t xTaskWeather;
 
 void user_input();
 void cmd_handler();

@@ -36,5 +36,5 @@ void app_main() {
      */
     xTaskCreate(user_input,    "user_input",    12040, NULL, 10, NULL);
     xTaskCreate(cmd_handler,   "cmd_handler",   12040, NULL, 10, NULL);
-    xTaskCreate(dht11_monitor, "dht11_monitor", 12040, NULL, 10, NULL);
+    xTaskCreate(dht11_monitor, "dht11_monitor", 12040, NULL, 10, &xTaskWeather);
 }
