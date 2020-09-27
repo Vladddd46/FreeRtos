@@ -1,6 +1,5 @@
 #include "header.h"
 
-#define CMD_MAX_LENGTH 1024
 #define UART_TX_PIN 17
 #define UART_RX_PIN 16
 

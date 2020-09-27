@@ -131,17 +131,17 @@ void led_pulse(char **cmd, int len) {
 
         struct led_settings_description *data1 = (struct led_settings_description *)malloc(sizeof(struct led_settings_description));
         data1->led_id = 1;
-        data1->freq = freq;
+        data1->freq   = freq;
         xTaskCreate(led_pulsing_task, "led_pulsing_task", 4040, (void *)data1, 10, NULL);
 
         struct led_settings_description *data2 = (struct led_settings_description *)malloc(sizeof(struct led_settings_description));
         data2->led_id = 2;
-        data2->freq = freq;
+        data2->freq   = freq;
         xTaskCreate(led_pulsing_task, "led2_pulsing", 4040, (void *)data2, 10, NULL);   
 
         struct led_settings_description *data3 = (struct led_settings_description *)malloc(sizeof(struct led_settings_description));
         data3->led_id = 3;
-        data3->freq = freq;
+        data3->freq   = freq;
         xTaskCreate(led_pulsing_task, "led3_pulsing", 4040, (void *)data3, 10, NULL); 
         
         vTaskDelay(10);

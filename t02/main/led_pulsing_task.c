@@ -1,6 +1,6 @@
 #include "header.h"
 
-int led_gpio_determine(int led_id) {
+static int led_gpio_determine(int led_id) {
     int res = LED1;
 
     if (led_id == 1)
@@ -12,7 +12,7 @@ int led_gpio_determine(int led_id) {
     return res;
 }
 
-int led_timer_determiner(int led_id) {
+static int led_timer_determiner(int led_id) {
     int timer = LEDC_TIMER_1;
      if (led_id == 1)
         timer = LEDC_TIMER_1;
@@ -23,7 +23,7 @@ int led_timer_determiner(int led_id) {
     return timer;
 }
 
-int led_channel_determiner(int led_id) {
+static int led_channel_determiner(int led_id) {
     int channel = LEDC_CHANNEL_1;
      if (led_id == 1)
         channel = LEDC_CHANNEL_1;
@@ -79,5 +79,3 @@ void led_pulsing_task(void *settings) {
         vTaskDelay(1);
     }
 }
-
-
