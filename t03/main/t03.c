@@ -64,7 +64,7 @@ void IRAM_ATTR timer_group0_isr(void *para) {
  * The main task of this example program
  */
 static void timer_example_evt_task(void *arg) {
-    int t = 0;
+    timer_counter = 0;
     sh1106_t display;
     sh1106_init(&display);
     sh1106_clear(&display);
@@ -80,19 +80,19 @@ static void timer_example_evt_task(void *arg) {
         if (evt.type == TEST_WITH_RELOAD) {
             bzero(timeb, 70);
             char *x = timeb;
-            if (t == 86400)
-                t = 0;
-            int h = t / 3600;
-            int m = (t - (3600 * h)) / 60;
-            int s = t - (3600 * h) - (60 * m);
+            if (timer_counter == 86400)
+                timer_counter = 0;
+            int h = timer_counter / 3600;
+            int m = (timer_counter - (3600 * h)) / 60;
+            int s = timer_counter - (3600 * h) - (60 * m);
             sh1106_clear(&display);
             sprintf(timeb, "Time: %d:%d:%d", h,m,s);
             print_str_in_line(&display1, x, 3);
             sh1106_update(&display);
-            printf("\n %d\n", t);
-            t += 1;
-            if (t % 60 == 0)
-                printf("%d\n", t/60);
+            printf("\n %d\n", timer_counter);
+            timer_counter += 1;
+            if (timer_counter % 60 == 0)
+                printf("%d\n", timer_counter/60);
 
         } 
     }
@@ -131,8 +131,8 @@ static void timer_initialization(int timer_idx, double timer_interval_sec) {
 
 
 void app_main() {
-     gpio_set_direction(32, GPIO_MODE_OUTPUT);
-     gpio_set_level(32, 1);
+    gpio_set_direction(32, GPIO_MODE_OUTPUT);
+    gpio_set_level(32, 1);
 
     global_variables_init();
     uart_init(9600);

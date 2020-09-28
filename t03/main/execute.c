@@ -26,9 +26,10 @@ void execute(char **cmd, int len) {
         led_commands(cmd, len);
     else if (cmd[0] && !strcmp(cmd[0], "help"))
         help_command();
-    else if (cmd[0] && !strcmp(cmd[0], "tehu")) {
+    else if (cmd[0] && !strcmp(cmd[0], "tehu"))
         dht11_log(cmd);
-    }
+    else if (cmd[0] && !strcmp(cmd[0], "time"))
+        time_cmd(cmd);
     else if (len == 0) {
         // pass
     }

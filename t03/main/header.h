@@ -63,6 +63,7 @@ int led2_state;
 int led3_state;
 
 int is_executing;
+int timer_counter;
 
 xQueueHandle  global_queue_handle;
 QueueHandle_t uart0_queue;
@@ -82,7 +83,7 @@ void dht11_monitor();
 void dht11_log(char **cmd);
 
 void help_command();
-
+void time_cmd(char **cmd);
 /* led functions */
 void led_on(char **cmd, int len);
 void led_off(char **cmd, int len);
