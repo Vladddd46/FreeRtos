@@ -12,11 +12,11 @@
 void user_input() {
     char *msg = "\n\rSorry, but command can`t be longer than 30 symbols.\n\r";
     uart_event_t event;
-    const char *prompt = "Enter your command : ";
     uint8_t command_line[COMMAND_LINE_MAX_LENGTH];
     size_t buf_size    = 0;
     uint8_t *buf       = NULL;
     int index          = 0;
+    const char *prompt = "Enter your command : ";
     uart_write_bytes(UART_PORT, prompt, strlen(prompt));
     while(1) {
         bzero(command_line, COMMAND_LINE_MAX_LENGTH);
@@ -71,6 +71,7 @@ void user_input() {
 
 /*
  * Receives user`s input from Queue.
+ * Change it in lowercase.
  * Splits user`s input in arr.
  * Calls execute function, which is in charge 
  * of executing command.
@@ -92,7 +93,7 @@ void cmd_handler() {
             p = strtok(result_lower, " ");
             cmd[index] = p;
             index++;
-            while(p != NULL || index < 100) {
+            while(p != NULL && index < 100) {
                 p = strtok(NULL, " ");
                 cmd[index] = p;
                 index++;
