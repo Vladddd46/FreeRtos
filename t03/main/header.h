@@ -67,7 +67,6 @@ TaskHandle_t  xTaskWeather;
 void user_input();
 void cmd_handler();
 void execute(char **cmd, int len);
-void error_msg(int err);
 void uart_init(int baud_rate);
 
 /* dht11 fucntions */
@@ -78,14 +77,11 @@ void tehu(char **cmd);
 void help_command();
 
 /* time */
-void time_cmd(char **cmd);
+void time_command(char **cmd);
 void timer_task(void *arg);
 
 /* led functions */
 void led_on(char **cmd, int len);
 void led_off(char **cmd, int len);
 void led_pulse(char **cmd, int len);
-void led_mode(int gpio_led, int set);
-void all_led_set(int mode);
-void led_set_by_id(int led_id, int mode);
 void led_pulsing_task(void *settings);

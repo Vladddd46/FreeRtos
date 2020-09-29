@@ -83,7 +83,7 @@ static void set_time(char **cmd) {
 
 
 
-void time_cmd(char **cmd) {
+void time_command(char **cmd) {
 	if (mx_strarr_len(cmd) == 1)
 		print_current_time();
 	else if (mx_strarr_len(cmd) == 2 && !strcmp(cmd[1], "reset"))

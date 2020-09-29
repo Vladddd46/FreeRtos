@@ -1,5 +1,7 @@
 #include "header.h"
 
+
+
 static int led_gpio_determine(int led_id) {
     int res = LED1;
 
@@ -12,6 +14,8 @@ static int led_gpio_determine(int led_id) {
     return res;
 }
 
+
+
 static int led_timer_determiner(int led_id) {
     int timer = LEDC_TIMER_1;
      if (led_id == 1)
@@ -22,6 +26,8 @@ static int led_timer_determiner(int led_id) {
         timer = LEDC_TIMER_3;
     return timer;
 }
+
+
 
 static int led_channel_determiner(int led_id) {
     int channel = LEDC_CHANNEL_1;
@@ -34,8 +40,9 @@ static int led_channel_determiner(int led_id) {
     return channel;
 }
 
+
+
 void led_pulsing_task(void *settings) {
-    gpio_set_pull_mode(33, GPIO_FLOATING);
     struct led_settings_description *data = (struct led_settings_description *)settings;
     int led_id = data->led_id;
     float freq = data->freq;

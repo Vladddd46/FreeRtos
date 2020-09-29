@@ -1,64 +1,17 @@
 #include "header.h"
 
-void led_on(char **cmd, int len) {
-    int err = 0;
-    int led_num;
 
-    if (len == 2) {
-        if (led1_state == LED_IS_PULSING || led2_state  == LED_IS_PULSING || led3_state == LED_IS_PULSING)
-            err = LED_BUSY;
-        else
-            all_led_set(1);
-    }
-    else if (len == 3) {
-        led_num = atoi(cmd[2]);
 
-        if ((led_num == 1 && led1_state == LED_IS_PULSING) 
-            || (led_num == 2 && led2_state == LED_IS_PULSING) 
-            || (led_num == 3 && led3_state == LED_IS_PULSING))
-            err = LED_BUSY;
-        else if (led_num <= 0 || led_num > 3)
-            err = INVALID_ARGUMENT;
-        else
-            led_set_by_id(led_num, 1);
-    }
-    else
-        err = WRONG_SYNTAX_LED_ON_OFF;
-
-    error_msg(err);
+static void wrong_frequence_value() {
+    char *msg = "\e[31mwrong frequency value | \e[33m f must be >= 0.0 and <= 2.0\e[0m\n\r";
+    uart_write_bytes(UART_PORT, msg, strlen(msg));
 }
 
 
-/*
- * Turns ledX off if it`s on or if it`s pulsing.
- * if len == 2 => "led off" => turns all leds off.
- * if len == 3 => "led on 1-3" => turns 1-3 led off.
- * if len <=0 or >3 => error.
- */
-void led_off(char **cmd, int len) {
-    int err = 0;
-    int led_num;
 
-    if (len == 2) {
-        all_led_set(0);
-        led1_state = LED_IS_OFF;
-        led2_state = LED_IS_OFF;
-        led3_state = LED_IS_OFF;
-    }
-    else if (len == 3) {
-        led_num = atoi(cmd[2]);
-        if (led_num == 0 || led_num > 3)
-            err = INVALID_ARGUMENT;
-        else {
-            led_set_by_id(led_num, 0);
-            if (led_num == 1) led1_state = LED_IS_OFF;
-            if (led_num == 2) led2_state = LED_IS_OFF;
-            if (led_num == 3) led3_state = LED_IS_OFF;
-        }
-    }
-    else
-        err = WRONG_SYNTAX_LED_ON_OFF;
-    error_msg(err);
+static void led_pulse_wrong_syntax() {
+    char *msg = "\e[31mwrong syntax | \e[33m led pulse [1-3] [f=x.y](frequency; 0 <= x <= 2, 0 <= y <= 9; optional; by default f=1)\e[0m\n\r";
+    uart_write_bytes(UART_PORT, msg, strlen(msg));
 }
 
 
@@ -99,6 +52,8 @@ static int freq_match(char *substr) {
     return  0;
 }
 
+
+
 /*
  * Creates tasks, which make led(s) pulse.
  * Also sets led(s) frequency.
@@ -112,14 +67,20 @@ void led_pulse(char **cmd, int len) {
         freq = freq_determine(cmd[2]);
     else if (freq_match(cmd[3]))
         freq = freq_determine(cmd[3]);
-    else if ((cmd[2] && atoi(cmd[2]) == 0) || (cmd[3] && atoi(cmd[3]) == 0))
-        err = WRONG_SYNTAX_PULSE;
+    else if ((cmd[2] && atoi(cmd[2]) == 0) || (cmd[3] && atoi(cmd[3]) == 0)) {
+        led_pulse_wrong_syntax();
+        return;
+    }
 
-    if (freq < 0.0 || freq > 2.0)
-        err = WRONG_FREQUENCY_VALUE;
+    if (freq < 0.0 || freq > 2.0) {
+        wrong_frequence_value();
+        return;
+    }
 
-    if (len > 4)
-        err = WRONG_SYNTAX_PULSE;
+    if (len > 4) {
+        led_pulse_wrong_syntax();
+        return;
+    }
     else if ((cmd[2] == NULL || freq_match(cmd[2])) && err == 0) {
         led1_state = LED_IS_PULSING;
         led2_state = LED_IS_PULSING;
@@ -165,5 +126,6 @@ void led_pulse(char **cmd, int len) {
         vTaskDelay(10);
         free(data);
     }
-    error_msg(err);
 }
+
+
