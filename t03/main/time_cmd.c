@@ -20,9 +20,11 @@ void time_cmd(char **cmd) {
     	s = timer_counter - (3600 * h) - (60 * m);
 	}
 	else if (mx_strarr_len(cmd) == 5 && !strcmp(cmd[1], "set")) {
-		int h = atoi(cmd[2]);
-		int m = atoi(cmd[3]);
-		int s = atoi(cmd[4]);
+		h = atoi(cmd[2]);
+		m = atoi(cmd[3]);
+		s = atoi(cmd[4]);
+
+
 		if ((h == 0 && strcmp("0", cmd[2]) != 0) || (m == 0 && strcmp("0", cmd[3]) != 0) || (s == 0 && strcmp("0", cmd[4]) != 0)) {
 			// value error;
 			return;
@@ -31,7 +33,7 @@ void time_cmd(char **cmd) {
 			// value error;
 			return;
 		}
-		timer_counter = (h * 3600) + (m * 60) + (s * 60);
+		timer_counter = (h * 3600) + (m * 60) + s;
 	}
 	sprintf(timeb, "Time: %d:%d:%d", h,m,s);
 	uart_write_bytes(UART_PORT, (const char*)timeb, strlen((const char*)timeb));

@@ -1,5 +1,35 @@
 #include "header.h"
 
+#define DHT11_QUEUE_SIZE 60
+#define ELEMENT_SIZE     70
+#define DHT11_POWER      2
+#define DHT11_DATA       4
+
+
+
+/*
+ * Gets data from  dht11 temperature/humidity sensor each 5 seconds.
+ * Sends got data into dht11_data_queue with size of 60 elements.
+ * If dht11_data_queue is already full with 60 elements, 
+ * the last element recieved in black_hole.
+ */
+void dht11_monitor() {
+    dht11_data_queue = xQueueCreate(DHT11_QUEUE_SIZE, ELEMENT_SIZE);
+    char black_hole[100];
+    char *data = NULL;
+
+    while(1) {
+        data = get_dht11_data(DHT11_POWER, DHT11_DATA); 
+        if (uxQueueMessagesWaiting(dht11_data_queue) == DHT11_QUEUE_SIZE)
+            xQueueReceive(dht11_data_queue, (void *)black_hole, (TickType_t)0);
+        if (data != NULL)
+            xQueueSend(dht11_data_queue,(void *)data, (TickType_t)0);
+        vTaskDelay(350);
+    }
+}
+
+
+
 /* @tehu command functionality - prints temperature or humidity data.
  * 1. Suspend task dht11_monitor in order it can`t write in queue.
  * 2. Receive all data from queue and store it in buffer data.
@@ -102,7 +132,7 @@ static void sendback_data_in_queue(char **data) {
  * 3. Print data in CLI and send it back in Queue.
  * 4. Resume task dht11_monitor.
  */
-void dht11_log(char **cmd) {
+void tehu(char **cmd) {
     char **data = NULL;
 
     vTaskSuspend(xTaskWeather);

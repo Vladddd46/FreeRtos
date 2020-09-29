@@ -21,13 +21,12 @@ void led_commands(char **cmd, int len) {
  * to be executed.
  */
 void execute(char **cmd, int len) {
-    is_executing = 1;
     if (cmd[0] && !strcmp(cmd[0], "led"))
         led_commands(cmd, len);
     else if (cmd[0] && !strcmp(cmd[0], "help"))
         help_command();
     else if (cmd[0] && !strcmp(cmd[0], "tehu"))
-        dht11_log(cmd);
+        tehu(cmd);
     else if (cmd[0] && !strcmp(cmd[0], "time"))
         time_cmd(cmd);
     else if (len == 0) {
@@ -35,6 +34,7 @@ void execute(char **cmd, int len) {
     }
     else 
         error_msg(NO_SUCH_COMMAND);
-    is_executing = 0;
+    const char *prompt = "Enter your command : ";
+    uart_write_bytes(UART_PORT, prompt, strlen(prompt));
 }
 

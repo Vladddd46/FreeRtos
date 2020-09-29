@@ -63,10 +63,6 @@ void led_off(char **cmd, int len) {
 
 
 
-/*
- * Retrieves 
- *
- */
 static float freq_determine(char *subcmd) {
     if (subcmd == NULL) 
         return -1;

@@ -17,12 +17,9 @@ void user_input() {
     size_t buf_size    = 0;
     uint8_t *buf       = NULL;
     int index          = 0;
-
+    uart_write_bytes(UART_PORT, prompt, strlen(prompt));
     while(1) {
-        while (is_executing == 1)
-            vTaskDelay(10);
         bzero(command_line, COMMAND_LINE_MAX_LENGTH);
-        uart_write_bytes(UART_PORT, prompt, strlen(prompt));
         
         while (1) {
             if (xQueueReceive(uart0_queue, (void * )&event, (portTickType)portMAX_DELAY)) {
@@ -40,7 +37,7 @@ void user_input() {
                     uart_read_bytes(UART_PORT, buf, buf_size + 1, buf_size);
                     if (buf[0] == CR_ASCII_CODE && buf_size == 1) {
                         uart_write_bytes(UART_PORT, "\n\r", strlen("\n\r"));
-                        if (!xQueueSend(global_queue_handle, command_line, (200 / portTICK_PERIOD_MS)))
+                        if (!xQueueSend(global_input_queue, command_line, (200 / portTICK_PERIOD_MS)))
                             printf("Failed to send data in queue\n");
                         index = 0;
                         break;
@@ -86,7 +83,7 @@ void cmd_handler() {
     char **cmd = mx_strarr_new(100);
     while(1) {
         bzero(result, 1000);
-        if (xQueueReceive(global_queue_handle, result, (200 / portTICK_PERIOD_MS))) {
+        if (xQueueReceive(global_input_queue, result, (200 / portTICK_PERIOD_MS))) {
             for (int i = 0; i < 100; ++i) cmd[i] = NULL;
             result_lower = mx_upper_to_lower(result);
             // splitting str into arr.

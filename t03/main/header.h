@@ -62,10 +62,9 @@ int led1_state;
 int led2_state;
 int led3_state;
 
-int is_executing;
 int timer_counter;
 
-xQueueHandle  global_queue_handle;
+xQueueHandle  global_input_queue;
 QueueHandle_t uart0_queue;
 QueueHandle_t dht11_data_queue;
 xQueueHandle timer_queue;
@@ -78,9 +77,11 @@ void execute(char **cmd, int len);
 void error_msg(int err);
 void uart_init(int baud_rate);
 
+void timer_task(void *arg);
+
 /* dht11 fucntions */
 void dht11_monitor();
-void dht11_log(char **cmd);
+void tehu(char **cmd);
 
 void help_command();
 void time_cmd(char **cmd);
