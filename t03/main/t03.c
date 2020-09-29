@@ -23,11 +23,16 @@ void global_variables_init() {
     led3_state = LED_IS_OFF;
 
     global_input_queue = xQueueCreate(5, COMMAND_LINE_MAX_LENGTH);
+    timer_queue = xQueueCreate(10, sizeof(timer_event_t));
 }
 
 
 
 void app_main() {
+    // turn on oled display.
+    gpio_set_direction(OLED_GPIO, GPIO_MODE_OUTPUT);
+    gpio_set_level(OLED_GPIO, 1);
+
     global_variables_init();
     uart_init(9600);
     init_i2c_driver();

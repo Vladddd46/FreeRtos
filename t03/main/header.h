@@ -21,8 +21,9 @@
 
 /* Config */
 #define COMMAND_LINE_MAX_LENGTH 1024
-#define UART_PORT UART_NUM_1
-#define NEWLINE "\n\r"
+#define UART_PORT 				UART_NUM_1
+#define NEWLINE 				"\n\r"
+#define OLED_GPIO				32				
 
 /* Errors */
 #define WRONG_SYNTAX_LED_ON_OFF 10

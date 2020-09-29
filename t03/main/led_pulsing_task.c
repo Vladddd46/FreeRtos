@@ -35,6 +35,7 @@ static int led_channel_determiner(int led_id) {
 }
 
 void led_pulsing_task(void *settings) {
+    gpio_set_pull_mode(33, GPIO_FLOATING);
     struct led_settings_description *data = (struct led_settings_description *)settings;
     int led_id = data->led_id;
     float freq = data->freq;
