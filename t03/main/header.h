@@ -43,12 +43,6 @@
 #define LED_IS_ON 				21
 #define LED_IS_PULSING 			22
 
-/* timer */
-#define TIMER_DIVIDER         80 //  Hardware timer clock divider
-#define TIMER_SCALE           (TIMER_BASE_CLK / TIMER_DIVIDER)  // convert counter value to seconds
-#define TIMER_INTERVAL1_SEC   1.0   // sample test interval for the second timer
-#define TEST_WITH_RELOAD      1        // testing will be done with auto reload
-
 struct led_settings_description {
 	int   led_id;
 	float freq;
@@ -62,7 +56,7 @@ typedef struct {
 int led1_state;
 int led2_state;
 int led3_state;
-int timer_counter;
+int current_time;
 
 xQueueHandle  global_input_queue;
 QueueHandle_t uart0_queue;

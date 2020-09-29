@@ -23,7 +23,9 @@ void global_variables_init() {
     led3_state = LED_IS_OFF;
 
     global_input_queue = xQueueCreate(5, COMMAND_LINE_MAX_LENGTH);
-    timer_queue = xQueueCreate(10, sizeof(timer_event_t));
+    timer_queue        = xQueueCreate(10, sizeof(timer_event_t));
+    
+    current_time = 0;
 }
 
 
@@ -50,7 +52,7 @@ void app_main() {
      * timer_task - digital clock implementation. Every second increment variable, which
      *  represents time.
      * PS. user_input and cmd_handler are declared in input.c
-     *     timer_task is declared in timer.c
+     *     timer_task is declared in digital_clock.c
      */
     xTaskCreate(user_input,    "user_input",    12040, NULL, 10, NULL);
     xTaskCreate(cmd_handler,   "cmd_handler",   12040, NULL, 10, NULL);
