@@ -27,6 +27,8 @@ void user_input() {
                     uart_get_buffered_data_len(UART_PORT, &buf_size);
                     if (buf_size > 30 || index > 30) {
                         uart_write_bytes(UART_PORT, msg, strlen(msg));
+                        uart_read_bytes(UART_PORT, NULL, buf_size + 1, buf_size);
+                        uart_write_bytes(UART_PORT, prompt, strlen(prompt));
                         index = 0;
                         buf_size = 0;
                         break;
@@ -40,8 +42,13 @@ void user_input() {
                         if (!xQueueSend(global_input_queue, command_line, (200 / portTICK_PERIOD_MS)))
                             printf("Failed to send data in queue\n");
                         index = 0;
+                        free(buf);
                         break;
                     }
+                    else if (buf[0] == 27 || buf[0] == '[') {
+                        free(buf);
+                        break;
+                    } 
                     else if (buf[0] == BACK_SPACE && buf_size == 1) {
                         if (index > 0) {
                             char c = 8;
