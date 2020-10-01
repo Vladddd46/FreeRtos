@@ -45,7 +45,11 @@ void sh1106_init(sh1106_t *display) {
     i2c_master_write_byte(cmd, 0xD5, true); // clock div
     i2c_master_write_byte(cmd, 0x80, true);
     i2c_master_write_byte(cmd, 0xA8, true); // multiplex
-    i2c_master_write_byte(cmd, 0x3F, true);
+    i2c_master_write_byte(cmd, 0xFF, true);
+
+    i2c_master_write_byte(cmd, 0x20, true);
+    i2c_master_write_byte(cmd, 0x00, true);
+    
     i2c_master_write_byte(cmd, 0x8D, true); // charge pump
     i2c_master_write_byte(cmd, 0x14, true);
     i2c_master_write_byte(cmd, 0x10, true); // high column
@@ -140,11 +144,17 @@ void sh1106_write_page(sh1106_t *display, uint8_t page) {
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     i2c_master_start(cmd);
 
+    uint8_t arr[8][128];
+
+    for (int i = 0; i < 8; ++i) //need to change
+        for (int j = 0; j < 128; ++j)
+            arr[i][j] = display->pages[i][j];
+
     i2c_master_write_byte(cmd, (display->addr << 1) | I2C_MASTER_WRITE, true);
     i2c_master_write_byte(cmd, 0x80, true); // single command
-    i2c_master_write_byte(cmd, 0xB0 + page, true);
+    i2c_master_write_byte(cmd, 0xB0, true);
     i2c_master_write_byte(cmd, 0x40, true); // data stream
-    i2c_master_write(cmd, display->pages[page], 128, true);
+    i2c_master_write(cmd, *arr, 128 * 8, true);
 
     i2c_master_stop(cmd);
     i2c_master_cmd_begin(display->port, cmd, 10 / portTICK_PERIOD_MS);
@@ -154,11 +164,11 @@ void sh1106_write_page(sh1106_t *display, uint8_t page) {
 
 
 void sh1106_update(sh1106_t *display) {
-    for (uint8_t i = 0; i < 8; i++) {
+    // for (uint8_t i = 0; i < 8; i++) {
         // if (display->changes & (1 << i)) {
-            sh1106_write_page(display, i);
+            sh1106_write_page(display, 0);
         // }
-    }
+    // }
     display->changes = 0x0000;
 }
 
