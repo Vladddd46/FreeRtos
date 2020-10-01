@@ -23,8 +23,6 @@ void global_variables_init() {
     led3_state = LED_IS_OFF;
 
     global_input_queue = xQueueCreate(5, COMMAND_LINE_MAX_LENGTH);
-    timer_queue        = xQueueCreate(10, sizeof(timer_event_t));
-    
     current_time = 0;
 }
 
@@ -57,5 +55,5 @@ void app_main() {
     xTaskCreate(user_input,    "user_input",    12040, NULL, 10, NULL);
     xTaskCreate(cmd_handler,   "cmd_handler",   12040, NULL, 10, NULL);
     xTaskCreate(dht11_monitor, "dht11_monitor", 12040, NULL, 10, &xTaskWeather);
-    xTaskCreate(timer_task,    "timer",         12040, NULL, 5, NULL);
+    xTaskCreate(timer_task,    "timer",         12040, NULL, 3,  &xTaskClock);
 }

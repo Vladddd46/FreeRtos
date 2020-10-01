@@ -61,8 +61,8 @@ int current_time;
 xQueueHandle  global_input_queue;
 QueueHandle_t uart0_queue;
 QueueHandle_t dht11_data_queue;
-xQueueHandle  timer_queue;
 TaskHandle_t  xTaskWeather;
+TaskHandle_t  xTaskClock;
 
 void user_input();
 void cmd_handler();

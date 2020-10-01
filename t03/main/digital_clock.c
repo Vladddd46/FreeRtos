@@ -7,14 +7,13 @@
 #define DAY_IN_SECONDS        86400
 
 /* @ Digital clock implementation.
- * time_task performs in infinite loop and suspends on QueueReceive until 
- *  interrupt sends notification in queue.
- * Each second interrupt occures and sends notification in queue.
+ * time_task performs in infinite loop and suspends on xTaskNotifyWait until 
+ *  interrupt sends notification.
+ * Each second interrupt occures and sends notification.
  * After getting notification from interrupt time_task increments global var.
  *  current_time by 1. Current time represents time in seconds.
  * Also time_task converts current_time in hours:minutes:seconds and prints it
  *  on OLED display.
- *
  */
 
 
@@ -23,31 +22,14 @@
  * Interrupt, that occurs each seconds and sends
  *  notification to time_task.
  */
-void IRAM_ATTR timer_interrupt(void *para) {
-    timer_spinlock_take(TIMER_GROUP_0);
-    int timer_idx = (int) para;
-
-    /* Retrieve the interrupt status and the counter value
-       from the timer that reported the interrupt */
+static void IRAM_ATTR timer_interrupt(void *para) {
     uint32_t timer_intr = timer_group_get_intr_status_in_isr(TIMER_GROUP_0);
-    uint64_t current_time_value = timer_group_get_counter_value_in_isr(TIMER_GROUP_0, timer_idx);
-
-    /* Prepare basic event data
-       that will be then sent back to the main program task */
-    timer_event_t evt;
-    if (timer_intr & TIMER_INTR_T1) {
-        evt.type = TEST_WITH_RELOAD;
-        timer_group_clr_intr_status_in_isr(TIMER_GROUP_0, TIMER_1);
-    } else
-        evt.type = -1; // not supported even type
-
-    /* After the alarm has been triggered
-      we need enable it again, so it is triggered the next time */
-    timer_group_enable_alarm_in_isr(TIMER_GROUP_0, timer_idx);
-
-    /* Now just send the event data back to the main program task */
-    xQueueSendFromISR(timer_queue, &evt, NULL);
-    timer_spinlock_give(TIMER_GROUP_0);
+    uint64_t timer_counter_value = timer_group_get_counter_value_in_isr(TIMER_GROUP_0, TIMER_0);
+    xTaskNotifyFromISR(xTaskClock, 1, eNoAction, NULL);
+    timer_group_clr_intr_status_in_isr(TIMER_GROUP_0, TIMER_0);
+    timer_group_enable_alarm_in_isr(TIMER_GROUP_0, TIMER_0);
+    portYIELD_FROM_ISR();
+    return;
 }
 
 
@@ -74,8 +56,7 @@ void timer_initialization(int timer_idx, double timer_interval_sec) {
     /* Configure the alarm value and the interrupt on alarm. */
     timer_set_alarm_value(TIMER_GROUP_0, timer_idx, timer_interval_sec * TIMER_SCALE);
     timer_enable_intr(TIMER_GROUP_0, timer_idx);
-    timer_isr_register(TIMER_GROUP_0, timer_idx, timer_interrupt,
-                       (void *)timer_idx, ESP_INTR_FLAG_IRAM, NULL);
+    timer_isr_register(TIMER_GROUP_0, timer_idx, timer_interrupt, NULL, ESP_INTR_FLAG_IRAM, NULL);
     timer_start(TIMER_GROUP_0, timer_idx);
 }
 
@@ -98,7 +79,7 @@ void print_current_time_on_display(sh1106_t *display) {
 
 
 void timer_task(void *arg) {
-    timer_initialization(TIMER_1, TIMER_INTERVAL1_SEC);
+    timer_initialization(TIMER_0, TIMER_INTERVAL1_SEC);
 
     // turning on display.
     sh1106_t display;
@@ -106,14 +87,11 @@ void timer_task(void *arg) {
     sh1106_clear(&display);
 
     while (1) {
-        timer_event_t evt;
-        xQueueReceive(timer_queue, &evt, portMAX_DELAY);
-        if (evt.type == TEST_WITH_RELOAD) {
-            if (current_time == DAY_IN_SECONDS)
-                current_time = 0;
-            print_current_time_on_display(&display);
-            current_time += 1;
-        }
+        xTaskNotifyWait(0x00000000, 0x00000000, NULL, portMAX_DELAY);
+        if (current_time == DAY_IN_SECONDS)
+            current_time = 0;
+        print_current_time_on_display(&display);
+        current_time += 1;
     }
 }
 
