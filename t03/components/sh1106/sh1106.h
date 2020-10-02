@@ -28,9 +28,6 @@ typedef struct {
 void sh1106_init(sh1106_t *display);
 
 
-// Write a single page (by index) to the display device.
-void sh1106_write_page(sh1106_t *display, uint8_t page);
-
 /*
  * Update the display by writing all pages that have changed since the last
  * update.
@@ -42,9 +39,8 @@ void sh1106_clear(sh1106_t *display);
 
 void print_char(sh1106_t **display, char c, int page, int position);
 void print_str_in_line(sh1106_t **display, char *str, int page);
-void display_print(sh1106_t **display, char *str);
 void init_display(sh1106_t *display);
 void init_i2c_driver();
 void sh1106_contrast(sh1106_t *display, uint8_t value);
-
+void screen_print(sh1106_t **display, char *str, int page);
 #endif

@@ -1,6 +1,5 @@
 #include "sh1106.h"
 
-
 #define SDA_PIN  21
 #define SCL_PIN  22
 
@@ -59,7 +58,7 @@ void sh1106_init(sh1106_t *display) {
     i2c_master_write_byte(cmd, 0x10, true);
     i2c_master_write_byte(cmd, 0x40, true);
     i2c_master_write_byte(cmd, 0xA1, true); // segment remap
-    i2c_master_write_byte(cmd, 0xA7, true); // normal/reverse display (A6 = светится когда 1 и A7 = наоборот )
+    i2c_master_write_byte(cmd, 0xA6, true); // normal/reverse display (A6 = светится когда 1 и A7 = наоборот )
     i2c_master_write_byte(cmd, 0x81, true); // Настройка контраста.
     i2c_master_write_byte(cmd, 0xFF, true); //  | контраст = от 00 до FF
     i2c_master_write_byte(cmd, 0xAF, true); // on
@@ -114,33 +113,63 @@ void print_str_in_line(sh1106_t **display, char *str, int page) {
     }
 }
 
-
-
-/*
- * Prints string on display. Starts printing from top left corver(0,0)
- * If string is larger, than 176 chars, it will. be cut.
- */
-void display_print(sh1106_t **display, char *str) {
-    int line = 0;
-    int pos  = 0;
-
-    for (int i = 0; str[i]; ++i) {
-        print_char(display, str[i], line, pos);
-        
-        pos += 6;
-        if (pos >= 126) {
-            line += 1;
-            pos = 0;
+void print_char_x2(sh1106_t **display, char c, int page, int position) {
+    // index of line, which represent character 'c' in font6x8 array
+    int index_in_font = 9;//(c - 32) * 6;
+    sh1106_t *display1 = *display;
+    
+    for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < 2; ++j) {
+            if ((font6x8[index_in_font] >> i & 1) == 0) {
+                 display1->pages[page][position] <<= 1;
+                 display1->pages[page][position + 1] <<= 1;
+            }
+            else {
+                display1->pages[page][position] <<= 1;
+                display1->pages[page][position] += 1;
+                display1->pages[page][position + 1] <<= 1;
+                display1->pages[page][position + 1] += 1;
+            }
         }
+    }
 
-        if (line >= 7)
+    for (int i = 4; i < 8; ++i) {
+        for (int j = 0; j < 2; ++j) {
+            if ((font6x8[index_in_font] >> i & 1) == 0) {
+                 display1->pages[page + 1][position] <<= 1; 
+                 display1->pages[page + 1][position + 1] <<= 1; 
+            }
+            else {
+                display1->pages[page + 1][position] <<= 1;
+                display1->pages[page + 1][position] += 1;
+                display1->pages[page + 1][position + 1] <<= 1;
+                display1->pages[page + 1][position + 1] += 1;
+            }
+        }
+    }
+}
+
+void screen_print(sh1106_t **display, char *str, int page) {
+    if (page < 0 || page > 7)
+        return;
+
+    int position = 0;
+    for (int i = 0; str[i]; ++i) {
+        print_char_x2(display, str[i], page, position);
+        position += 12;
+
+        if (position >= 126)
             break;
     }
+
 }
 
 
 
-void sh1106_write_page(sh1106_t *display, uint8_t page) {
+/* @ Updates screen.
+ * Needed to be used after each print function.
+ */
+void sh1106_update(sh1106_t *display) {
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     i2c_master_start(cmd);
 
@@ -163,28 +192,20 @@ void sh1106_write_page(sh1106_t *display, uint8_t page) {
 
 
 
-void sh1106_update(sh1106_t *display) {
-    // for (uint8_t i = 0; i < 8; i++) {
-        // if (display->changes & (1 << i)) {
-            sh1106_write_page(display, 0);
-        // }
-    // }
-    display->changes = 0x0000;
-}
-
-
-
+// Sets all pixels in display with 0.
 void sh1106_clear(sh1106_t *display) {
     for (uint8_t i = 0; i < 8; i++) {
-        for (uint8_t j = 0; j < 128; j++) {
+        for (uint8_t j = 0; j < 128; j++)
             display->pages[i][j] = 0x00;
-        }
     }
-    display->changes = 0xffff;
 }
 
 
 
+/*
+ * Sets contrast of display.
+ * Contrast is represented by uint8_t value = 0x00 - 0xFF
+ */
 void sh1106_contrast(sh1106_t *display, uint8_t value) {
     i2c_cmd_handle_t cmd = i2c_cmd_link_create(); // command link initialize.
     i2c_master_start(cmd); // start bit.

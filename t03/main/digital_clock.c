@@ -72,8 +72,8 @@ void print_current_time_on_display(sh1106_t *display) {
     sprintf(time_buff, "Time: %d:%d:%d", hours, minutes,seconds);
 
     sh1106_clear(display);
-    print_str_in_line(&display, (char *)time_buff, 3);
-    sh1106_write_page(display, 0);
+    screen_print(&display, (char *)time_buff, 3);
+    sh1106_update(display);
 }
 
 
