@@ -38,9 +38,8 @@ void sh1106_update(sh1106_t *display);
 void sh1106_clear(sh1106_t *display);
 
 void print_char(sh1106_t **display, char c, int page, int position);
-void print_str_in_line(sh1106_t **display, char *str, int page);
 void init_display(sh1106_t *display);
 void init_i2c_driver();
 void sh1106_contrast(sh1106_t *display, uint8_t value);
-void screen_print(sh1106_t **display, char *str, int page);
+void screen_print(sh1106_t **display, char *str, int page, int position, int size);
 #endif

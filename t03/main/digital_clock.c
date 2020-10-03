@@ -67,13 +67,24 @@ void print_current_time_on_display(sh1106_t *display) {
     int minutes = (current_time - (3600 * hours)) / 60;
     int seconds = current_time - (3600 * hours) - (60 * minutes);
 
-    char time_buff[70];
-    bzero(time_buff, 70);
-    sprintf(time_buff, "Time: %d:%d:%d", hours, minutes,seconds);
+    char hours_str[30];
+    bzero(hours_str, 30);
+    if (hours < 10) sprintf(hours_str, "0%d", hours);
+    else            sprintf(hours_str, "%d", hours);
+    char minutes_str[30];
+    bzero(minutes_str, 30);
+    if (minutes < 10) sprintf(minutes_str, "0%d", minutes);
+    else              sprintf(minutes_str, "%d", minutes);
+    char seconds_str[30];
+    bzero(seconds_str, 30);
+    if (seconds < 10) sprintf(seconds_str, "0%d", seconds);
+    else              sprintf(seconds_str, "%d", seconds);
+    char time_buff[100];
+    bzero(time_buff, 100);
+    sprintf(time_buff, "%s:%s:%s", hours_str, minutes_str, seconds_str);
 
     sh1106_clear(display);
-    screen_print(&display, (char *)time_buff, 3);
-    sh1106_update(display);
+    screen_print(&display, (char *)time_buff, 3, 15, 2);
 }
 
 
