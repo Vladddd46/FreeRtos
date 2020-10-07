@@ -17,6 +17,10 @@
 #include "driver/timer.h"
 #include "sh1106.h"
 #include "driver/i2c.h"
+#include <unistd.h>
+#include "esp_err.h"
+#include "driver/i2s.h"
+
 
 
 /* Config */
@@ -64,6 +68,7 @@ QueueHandle_t dht11_data_queue;
 TaskHandle_t  xTaskWeather;
 TaskHandle_t  xTaskClock;
 
+
 void user_input();
 void cmd_handler();
 void execute(char **cmd, int len);
@@ -79,6 +84,9 @@ void help_command();
 /* time */
 void time_command(char **cmd);
 void timer_task(void *arg);
+
+/* sound */
+void sound_task();
 
 /* led functions */
 void led_on(char **cmd, int len);
