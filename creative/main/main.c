@@ -25,6 +25,7 @@ void global_variables_init() {
 
     global_input_queue = xQueueCreate(5, COMMAND_LINE_MAX_LENGTH);
     current_time = 0;
+    alarm_time   = -1;
 }
 
 

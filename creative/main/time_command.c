@@ -6,16 +6,18 @@
  * User should set current time, when he/she turns on the board.
  * time - prints current time, stored in current_time in console.
  * time reset - sets current_time to 0.
- * timer set hh mm ss - converts hh(hours) mm(minutes) ss(seconds) 
+ * time set hh mm ss - converts hh(hours) mm(minutes) ss(seconds) 
  *  in seconds and sets current_time.
+ * time alarm  hh mm ss - sets time, when alarm occurs. When time comes,
+ *  sound enables, this sound continues 30 seconds.
  */
 
 
 
-static void print_time_in_console(int hours, int minutes, int seconds) {
+static void print_time_log_in_console(int hours, int minutes, int seconds, char *type) {
     char time_buff[70];
     bzero(time_buff, 70);
-    sprintf(time_buff, "Time: %d:%d:%d", hours, minutes, seconds);
+    sprintf(time_buff, "%s %d:%d:%d", type, hours, minutes, seconds);
     uart_write_bytes(UART_PORT, (const char*)time_buff, strlen((const char*)time_buff));
     uart_write_bytes(UART_PORT, NEWLINE, strlen(NEWLINE));
 }
@@ -26,17 +28,18 @@ static void print_current_time() {
     int h = current_time / 3600;
     int m = (current_time - (3600 * h)) / 60;
     int s = current_time - (3600 * h) - (60 * m);
-    print_time_in_console(h, m, s);
+    print_time_log_in_console(h, m, s, "Time:");
 }
 
 
 
+// Resets time on digital clock.
 static void reset_time() {
     current_time = 0;
     int h = current_time / 3600;
     int m = (current_time - (3600 * h)) / 60;
     int s = current_time - (3600 * h) - (60 * m);
-    print_time_in_console(h, m, s);
+    print_time_log_in_console(h, m, s, "Time:");
 }
 
 
@@ -44,7 +47,7 @@ static void reset_time() {
 static void usage_error() {
     char *red_color     = "\e[31m";
     char *default_color = "\e[0m";
-    char *msg           = "usage: time [reset; set hh mm ss]";
+    char *msg           = "usage: time [reset; set hh mm ss; alarm hh mm ss]";
     uart_write_bytes(UART_PORT, (const char*)red_color, strlen((const char*)red_color));
     uart_write_bytes(UART_PORT, (const char*)msg, strlen((const char*)msg));
     uart_write_bytes(UART_PORT, (const char*)default_color, strlen((const char*)default_color));
@@ -65,6 +68,7 @@ static void value_error() {
 
 
 
+// Sets time on digital clock.
 static void set_time(char **cmd) {
     int h = atoi(cmd[2]);
     int m = atoi(cmd[3]);
@@ -77,10 +81,37 @@ static void set_time(char **cmd) {
         value_error();
     else {
         current_time = (h * 3600) + (m * 60) + s;
-        print_time_in_console(h, m, s);
+        print_time_log_in_console(h, m, s, "Time:");
     }
 }
 
+
+
+/* @ Sets time, when alarm sound occurs. Alarm continues 30 seconds.
+ * syntax: time alarm hh mm ss
+ */
+static void time_alarm(char **cmd) {
+    int h = atoi(cmd[2]);
+    int m = atoi(cmd[3]);
+    int s = atoi(cmd[4]);
+
+    if ((h == 0 && strcmp("0", cmd[2]) != 0) 
+        || (m == 0 && strcmp("0", cmd[3]) != 0)
+         || (s == 0 && strcmp("0", cmd[4]) != 0))
+        value_error();
+    else if (h > 23 || m > 60 || s > 60)
+        value_error();
+    else {
+        alarm_time = (h * 3600) + (m * 60) + s;
+        print_time_log_in_console(h, m, s, "Alarm time:");
+    }
+}
+
+
+// Disables any alarm.
+static void time_alarm_off() {
+    alarm_time = -1;
+}
 
 
 void time_command(char **cmd) {
@@ -90,6 +121,10 @@ void time_command(char **cmd) {
         reset_time();
     else if (mx_strarr_len(cmd) == 5 && !strcmp(cmd[1], "set"))
         set_time(cmd);
+    else if (mx_strarr_len(cmd) == 5 && !strcmp(cmd[1], "alarm"))
+        time_alarm(cmd);
+    else if (mx_strarr_len(cmd) == 3 && !strcmp(cmd[1], "alarm") && !strcmp(cmd[2], "off"))
+        time_alarm_off(cmd);
     else
         usage_error();
 }

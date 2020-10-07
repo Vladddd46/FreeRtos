@@ -60,7 +60,9 @@ typedef struct {
 int led1_state;
 int led2_state;
 int led3_state;
+
 int current_time;
+int alarm_time;
 
 xQueueHandle  global_input_queue;
 QueueHandle_t uart0_queue;
