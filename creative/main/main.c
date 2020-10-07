@@ -24,7 +24,7 @@ void global_variables_init() {
     led3_state = LED_IS_OFF;
 
     global_input_queue = xQueueCreate(5, COMMAND_LINE_MAX_LENGTH);
-    current_time = 0;
+    current_time = -1;
     alarm_time   = -1;
 }
 
@@ -54,9 +54,9 @@ void app_main() {
      * PS. user_input and cmd_handler are declared in input.c
      *     timer_task is declared in digital_clock.c
      */
-    xTaskCreate(user_input,    "user_input",    12040, NULL, 10, NULL);
-    xTaskCreate(cmd_handler,   "cmd_handler",   12040, NULL, 10, NULL);
-    xTaskCreate(sound_task,    "sound",         12040, NULL, 10, NULL);
-    xTaskCreate(dht11_monitor, "dht11_monitor", 12040, NULL, 10,  &xTaskWeather);
-    xTaskCreate(timer_task,    "timer",         12040, NULL, 10,  &xTaskClock);
+    xTaskCreate(user_input,    "user_input",    32040, NULL, 10, NULL);
+    xTaskCreate(cmd_handler,   "cmd_handler",   22040, NULL, 10, NULL);
+    xTaskCreate(sound_task,    "sound",         22040, NULL, 10, NULL);
+    xTaskCreate(dht11_monitor, "dht11_monitor", 22040, NULL, 10,  &xTaskWeather);
+    xTaskCreate(timer_task,    "timer",         22040, NULL, 10,  &xTaskClock);
 }

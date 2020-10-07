@@ -99,14 +99,21 @@ void timer_task(void *arg) {
 
     while (1) {
         xTaskNotifyWait(0x00000000, 0x00000000, NULL, portMAX_DELAY);
-        if (current_time == DAY_IN_SECONDS)
-            current_time = 0;
-        if (current_time == alarm_time)
-            i2s_start(0);
-        if (current_time == alarm_time + 30 || alarm_time == -1)
-            i2s_stop(0);
-        print_current_time_on_display(&display);
-        current_time += 1;
+        
+        if (current_time != -1)  {       
+            if (current_time == DAY_IN_SECONDS)
+                current_time = 0;
+            if (current_time == alarm_time)
+                i2s_start(0);
+            if (current_time == alarm_time + 30 || alarm_time == -1)
+                i2s_stop(0);
+            print_current_time_on_display(&display);
+            current_time += 1;
+        }
+        else {
+            sh1106_t *display1 = &display;
+            screen_print(&display1, "!SET TIME!", 3, 5, 2);
+        }
     }
 }
 
