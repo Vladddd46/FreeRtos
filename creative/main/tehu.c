@@ -22,8 +22,10 @@ void dht11_monitor() {
         data = get_dht11_data(DHT11_POWER, DHT11_DATA); 
         if (uxQueueMessagesWaiting(dht11_data_queue) == DHT11_QUEUE_SIZE)
             xQueueReceive(dht11_data_queue, (void *)black_hole, (TickType_t)0);
-        if (data != NULL)
+        if (data != NULL) {
+            xQueueSend(dht11_current_queue, mx_string_copy(data), (TickType_t)0);
             xQueueSend(dht11_data_queue,(void *)data, (TickType_t)0);
+        }
         vTaskDelay(350);
     }
 }

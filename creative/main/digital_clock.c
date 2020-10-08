@@ -62,46 +62,13 @@ void timer_initialization(int timer_idx, double timer_interval_sec) {
 
 
 
-void print_current_time_on_display(sh1106_t *display) {
-    int hours   = current_time / 3600;
-    int minutes = (current_time - (3600 * hours)) / 60;
-    int seconds = current_time - (3600 * hours) - (60 * minutes);
-
-    char hours_str[30];
-    bzero(hours_str, 30);
-    if (hours < 10) sprintf(hours_str, "0%d", hours);
-    else            sprintf(hours_str, "%d", hours);
-    char minutes_str[30];
-    bzero(minutes_str, 30);
-    if (minutes < 10) sprintf(minutes_str, "0%d", minutes);
-    else              sprintf(minutes_str, "%d", minutes);
-    char seconds_str[30];
-    bzero(seconds_str, 30);
-    if (seconds < 10) sprintf(seconds_str, "0%d", seconds);
-    else              sprintf(seconds_str, "%d", seconds);
-    char time_buff[100];
-    bzero(time_buff, 100);
-    sprintf(time_buff, "%s:%s:%s", hours_str, minutes_str, seconds_str);
-
-    sh1106_clear(display);
-    screen_print(&display, (char *)time_buff, 3, 15, 2);
-}
-
-
-
 void timer_task(void *arg) {
     timer_initialization(TIMER_0, TIMER_INTERVAL1_SEC);
-
-    // turning on display.
-    sh1106_t display;
-    sh1106_init(&display);
-    sh1106_clear(&display);
 
     while (1) {
         xTaskNotifyWait(0x00000000, 0x00000000, NULL, portMAX_DELAY);
         if (current_time == DAY_IN_SECONDS)
             current_time = 0;
-        print_current_time_on_display(&display);
         current_time += 1;
     }
 }

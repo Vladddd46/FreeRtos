@@ -61,10 +61,12 @@ int led1_state;
 int led2_state;
 int led3_state;
 int current_time;
+int alarm_time;
 
 xQueueHandle  global_input_queue;
 QueueHandle_t uart0_queue;
 QueueHandle_t dht11_data_queue;
+QueueHandle_t dht11_current_queue;
 TaskHandle_t  xTaskWeather;
 TaskHandle_t  xTaskClock;
 
@@ -73,6 +75,7 @@ void user_input();
 void cmd_handler();
 void execute(char **cmd, int len);
 void uart_init(int baud_rate);
+void oled_view_task();
 
 /* dht11 fucntions */
 void dht11_monitor();

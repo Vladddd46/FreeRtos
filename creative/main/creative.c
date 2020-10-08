@@ -23,8 +23,10 @@ void global_variables_init() {
     led2_state = LED_IS_OFF;
     led3_state = LED_IS_OFF;
 
-    global_input_queue = xQueueCreate(5, COMMAND_LINE_MAX_LENGTH);
+    global_input_queue  = xQueueCreate(5, COMMAND_LINE_MAX_LENGTH);
+    dht11_current_queue = xQueueCreate(1, 100);
     current_time = 0;
+    alarm_time   = -1;
 }
 
 
@@ -56,6 +58,7 @@ void app_main() {
     xTaskCreate(user_input,    "user_input",    12040, NULL, 10, NULL);
     xTaskCreate(cmd_handler,   "cmd_handler",   12040, NULL, 10, NULL);
     xTaskCreate(sound_task,    "sound",         12040, NULL, 10, NULL);
+    xTaskCreate(oled_view_task,"oled_view",     32040, NULL, 10, NULL);
     xTaskCreate(dht11_monitor, "dht11_monitor", 12040, NULL, 10,  &xTaskWeather);
     xTaskCreate(timer_task,    "timer",         12040, NULL, 10,  &xTaskClock);
 }

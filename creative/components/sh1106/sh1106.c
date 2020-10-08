@@ -177,7 +177,6 @@ void screen_print(sh1106_t **display, char *str, int page, int position, int siz
                 break;
         }
     }
-    sh1106_update(*display);
 }
 
 
