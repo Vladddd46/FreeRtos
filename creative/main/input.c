@@ -3,49 +3,6 @@
 #define LF_ASCII_CODE 0xA
 #define CR_ASCII_CODE 0xD // \r the same
 #define BACK_SPACE    127
-#define TIME_PROMPT   "Please, enter current time: hh mm ss:"
-#define PROMPT        "Enter your command: "
-#define INPUT_2_LONG  "\n\rSorry, but command can`t be longer than 30 symbols.\n\r"
-#define RED_COLOR     "\e[31m"
-#define DEFAULT_COLOR "\e[0m"
-
-
-
-void write_red_time_promt() {
-    uart_write_bytes(UART_PORT, RED_COLOR,    strlen(RED_COLOR));
-    uart_write_bytes(UART_PORT, TIME_PROMPT,  strlen(TIME_PROMPT));
-    uart_write_bytes(UART_PORT, DEFAULT_COLOR,strlen(DEFAULT_COLOR));
-}
-
-
-void force_time_set(char **cmd, int cmd_len) {
-    int h,m,s;
-
-    if (cmd_len == 3) {
-        h = atoi(cmd[0]);
-        m = atoi(cmd[1]);
-        s = atoi(cmd[2]);
-
-        if (h == 0 && (strcmp("0", cmd[0]) != 0 && strcmp("00", cmd[0]) != 0))
-            write_red_time_promt();
-        else if (m == 0 && (strcmp("0", cmd[1]) != 0 && strcmp("00", cmd[1]) != 0))
-            write_red_time_promt();
-        else if (s == 0 && (strcmp("0", cmd[2]) != 0 && strcmp("00", cmd[2]) != 0))
-            write_red_time_promt();
-        else if ((h > 23 || m > 60 || s > 60) || (m < 0 || h < 0 || s < 0))
-            write_red_time_promt();
-        else {
-            current_time = (h * 3600) + (m * 60) + s;
-            uart_write_bytes(UART_PORT, PROMPT, strlen(PROMPT));
-        }
-    }
-    else {
-        if (cmd_len == 0)
-            uart_write_bytes(UART_PORT, TIME_PROMPT, strlen(TIME_PROMPT));
-        else
-            write_red_time_promt();
-    }
-}
 
 /*
  * Reads user`s input from UART2 and stores it in comman_Line string.
@@ -53,12 +10,14 @@ void force_time_set(char **cmd, int cmd_len) {
  * task through queue.
  */
 void user_input() {
+    char *msg = "\n\rSorry, but command can`t be longer than 30 symbols.\n\r";
     uart_event_t event;
     uint8_t command_line[COMMAND_LINE_MAX_LENGTH];
     size_t buf_size    = 0;
     uint8_t *buf       = NULL;
     int index          = 0;
-    uart_write_bytes(UART_PORT, TIME_PROMPT, strlen(TIME_PROMPT));
+    const char *prompt = "Enter your command : ";
+    uart_write_bytes(UART_PORT, prompt, strlen(prompt));
     while(1) {
         bzero(command_line, COMMAND_LINE_MAX_LENGTH);
         
@@ -67,12 +26,9 @@ void user_input() {
                 if (event.type == UART_DATA) {
                     uart_get_buffered_data_len(UART_PORT, &buf_size);
                     if (buf_size > 30 || index > 30) {
-                        uart_write_bytes(UART_PORT, INPUT_2_LONG, strlen(INPUT_2_LONG));
+                        uart_write_bytes(UART_PORT, msg, strlen(msg));
                         uart_read_bytes(UART_PORT, NULL, buf_size + 1, buf_size);
-                        if (current_time == -1)
-                            uart_write_bytes(UART_PORT, PROMPT, strlen(PROMPT));
-                        else 
-                            uart_write_bytes(UART_PORT, TIME_PROMPT, strlen(TIME_PROMPT));
+                        uart_write_bytes(UART_PORT, prompt, strlen(prompt));
                         index = 0;
                         buf_size = 0;
                         break;
@@ -119,22 +75,6 @@ void user_input() {
 }
 
 
-char **split_input(char *inp) {
-    char **cmd = mx_strarr_new(100);
-    int index = 0;
-    char *p;
-            
-    p = strtok(inp, " ");
-    cmd[index] = p;
-    index++;
-    while(p != NULL && index < 100) {
-        p = strtok(NULL, " ");
-        cmd[index] = p;
-        index++;
-    }
-    return cmd;
-}
-
 
 /*
  * Receives user`s input from Queue.
@@ -145,20 +85,30 @@ char **split_input(char *inp) {
  */
 void cmd_handler() {
     char result[1000];
+    bzero(result, 1000);
     char *result_lower;
-    char **cmd = NULL;
-    int  cmd_len;
 
+    char **cmd = mx_strarr_new(100);
     while(1) {
         bzero(result, 1000);
         if (xQueueReceive(global_input_queue, result, (200 / portTICK_PERIOD_MS))) {
+            for (int i = 0; i < 100; ++i) cmd[i] = NULL;
             result_lower = mx_upper_to_lower(result);
-            cmd          = split_input(result_lower);
-            cmd_len      = mx_strarr_len(cmd);
-            if (current_time == -1) 
-                force_time_set(cmd, cmd_len);
-            else 
-                execute(cmd, cmd_len);
+            // splitting str into arr.
+            int index = 0;
+            char *p;
+            p = strtok(result_lower, " ");
+            cmd[index] = p;
+            index++;
+            while(p != NULL && index < 100) {
+                p = strtok(NULL, " ");
+                cmd[index] = p;
+                index++;
+            }
+            // 
+            int cmd_len = 0;
+            while(cmd[cmd_len] && cmd_len < 100) cmd_len++;
+            execute(cmd, cmd_len);
             free(result_lower);
         }
     }

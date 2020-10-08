@@ -1,6 +1,11 @@
 #include "header.h"
 
+/*
+ * Determines the type of command
+ * to be executed.
+ */
 
+#define EN_AMP                  23
 
 static void no_such_command_error() {
     char *msg = "\e[31mNo such command.\e[36mWrite \e[32mhelp \e[36mto list all supported commands.\e[0m\n\r";
@@ -23,8 +28,6 @@ static void led_commands(char **cmd, int len) {
 
 
 
-/* @ Enables/Disables sound.
- */
 static void sound_command(char **cmd, int len) {
     char *msg = "\e[31mWrong syntax\e[36m sound [on/off]\e[0m\n\r";
 
@@ -42,10 +45,6 @@ static void sound_command(char **cmd, int len) {
 
 
 
-/*
- * Determines the type of command
- * to be executed.
- */
 void execute(char **cmd, int len) {
 
     if (len == 0) {
