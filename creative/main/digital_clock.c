@@ -69,6 +69,12 @@ void timer_task(void *arg) {
         xTaskNotifyWait(0x00000000, 0x00000000, NULL, portMAX_DELAY);
         if (current_time == DAY_IN_SECONDS)
             current_time = 0;
+        if (current_time == alarm_time) {
+            i2s_start(0);
+        }
+        if (current_time == alarm_time + 10) {
+            i2s_stop(0);
+        }
         current_time += 1;
     }
 }

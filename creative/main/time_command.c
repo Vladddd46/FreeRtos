@@ -81,7 +81,21 @@ static void set_time(char **cmd) {
     }
 }
 
-
+static void set_alarm(char **cmd) {
+    int h = atoi(cmd[2]);
+    int m = atoi(cmd[3]);
+    int s = atoi(cmd[4]);
+    if ((h == 0 && strcmp("0", cmd[2]) != 0) 
+        || (m == 0 && strcmp("0", cmd[3]) != 0)
+         || (s == 0 && strcmp("0", cmd[4]) != 0))
+        value_error();
+    else if (h > 23 || m > 60 || s > 60)
+        value_error();
+    else {
+        alarm_time = (h * 3600) + (m * 60) + s;
+        // print_time_in_console(h, m, s);
+    }
+}
 
 void time_command(char **cmd) {
     if (mx_strarr_len(cmd) == 1)
@@ -90,6 +104,10 @@ void time_command(char **cmd) {
         reset_time();
     else if (mx_strarr_len(cmd) == 5 && !strcmp(cmd[1], "set"))
         set_time(cmd);
+    else if (mx_strarr_len(cmd) == 5 && !strcmp(cmd[1], "alarm"))
+        set_alarm(cmd);
+    else if (mx_strarr_len(cmd) == 3 && !strcmp(cmd[1], "alarm") && !strcmp(cmd[2], "off"))
+        alarm_time = -1;
     else
         usage_error();
 }
