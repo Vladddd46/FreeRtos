@@ -11,25 +11,6 @@
 
 #define OLED_ENABLE 32
 
-static int photoresistor_value   = 4095 / 17;
-static int screen_contrast_value = 255;
-
-
-
-/*
- * Checks value on photoresistors and
- * stores it in photoresistor_value variable.
- */
-void photoresistor_checker() {
-    adc1_config_width(ADC_WIDTH_BIT_12);
-    adc1_config_channel_atten(ADC1_CHANNEL_0,ADC_ATTEN_DB_0);
-
-    while(1) {
-        photoresistor_value = adc1_get_raw(ADC1_CHANNEL_0);
-        vTaskDelay(1);
-    }
-}
-
 
 
 /*
@@ -37,19 +18,27 @@ void photoresistor_checker() {
  * depending on photoresistor_value variable.
  */
 void display_contrast_changer() {
+    int photoresistor_value   = 4095 / 17;
+    int screen_contrast_value = 255;
+
+    // init photoresistor.
+    adc1_config_width(ADC_WIDTH_BIT_12);
+    adc1_config_channel_atten(ADC1_CHANNEL_0, ADC_ATTEN_DB_0);
+
     gpio_set(OLED_ENABLE, GPIO_MODE_OUTPUT, 1);
     
+    /* init display with `Hello World` logo */
     sh1106_t display;
     init_i2c_driver();
     sh1106_init(&display);
     sh1106_clear(&display);
-
     sh1106_t *display1 = &display;
     print_str_in_line(&display1, "     Hello World!", 3);
     sh1106_update(&display);
 
     int res;
     while(1) {
+        photoresistor_value = adc1_get_raw(ADC1_CHANNEL_0);
         res = (photoresistor_value / 17) - 255;
         if (res < 0) res *= -1;
 
@@ -68,7 +57,6 @@ void display_contrast_changer() {
 
 
 void app_main() {
-    xTaskCreate(photoresistor_checker, "photoresistor_checker", 4040, NULL, 10, NULL);
     xTaskCreate(display_contrast_changer, "display_contrast_changer", 4040, NULL, 10, NULL);
 }
 
