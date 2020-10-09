@@ -8,10 +8,10 @@
 <p> <b>t04</b> - sound [on/off] command added. <b>sound on</b> - makes sound(noise:D) with help of <b>DAC</b>. Sound data is transmitted to <b>DAC</b> in <b>DMA</b> mode by <b>I2S</b></p>
 <p> <b>creative</b> - temperature, humidity and time are displayed on oled. CLI supports the following commands:
 	<ul>
-		<li>help</li>
-		<li>tehu - temperature and humidity log.</li>
-		<li>sound on/off - enables/disables sound(noise).</li>
-		<li>time set/alarm - setting time/alarm.</li>
-		<li>led on/off/pulse - turning on/off led; make led(s) pulsing.</li>
+		<li><b>help</b></li>
+		<li><b>tehu</b> - temperature and humidity log.</li>
+		<li><b>sound on/off</b> - enables/disables sound(noise).</li>
+		<li><b>time set/alarm</b> - setting time/alarm.</li>
+		<li><b>led on/off/pulse</b> - turning on/off led; make led(s) pulsing.</li>
 	</ul> 
 </p>
