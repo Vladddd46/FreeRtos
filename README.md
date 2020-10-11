@@ -1,5 +1,7 @@
 <h1> Working with FreeRtos and board ESP32 </h1>
 
+<p><b>FreeRTOS</b> is a real-time operating system kernel for embedded devices that has been ported to 35 microcontroller platforms. For more details <a href="https://en.wikipedia.org/wiki/FreeRTOS">Wiki</a></p>
+
 <h3> Description: </h3>
 <b>t00</b> - oled display brightness is getting changed depending on the state of photoresistor. More light on photoresistor - less bright oled display and vice versa.<br>
 
