@@ -78,10 +78,8 @@ void led_pulsing_task(void *settings) {
         else if (led_id == 3 && led3_state == LED_IS_OFF)
             vTaskDelete(NULL);
 
-        // ascending.
         ledc_set_fade_with_time(ledc_channel.speed_mode, ledc_channel.channel, 255, 1000);
         ledc_fade_start(ledc_channel.speed_mode, ledc_channel.channel, LEDC_FADE_WAIT_DONE);
-        // descending.
         ledc_set_fade_with_time(ledc_channel.speed_mode, ledc_channel.channel, 0, 1000);
         ledc_fade_start(ledc_channel.speed_mode, ledc_channel.channel, LEDC_FADE_WAIT_DONE);
         vTaskDelay(1);

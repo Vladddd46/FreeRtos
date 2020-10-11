@@ -75,6 +75,8 @@ static void print_full_log(char **data) {
         if (tmp) 
             free(tmp);
     }
+    if (previous_value != NULL)
+        free(previous_value);
 }
 
 
