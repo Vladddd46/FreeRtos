@@ -2,7 +2,7 @@
 
 <p><b>FreeRTOS</b> is a real-time operating system kernel for embedded devices that has been ported to 35 microcontroller platforms. For more details <a href="https://en.wikipedia.org/wiki/FreeRTOS">Wiki</a></p>
 
-<p>Implementation of CLI for ESP32 board. To use CLI connect to the UART2 `screen /dev/cu.cu.SLAB_USBtoUART`</p>
+<p>Implementation of <b>CLI</b> for <b>ESP32</b> board. To use <b>CLI</b> connect to the <b>UART2</b> `screen /dev/cu.cu.SLAB_USBtoUART`</p>
 
 <h2> Description: </h2>
 <b>t00</b> - oled display brightness is getting changed depending on the state of photoresistor. More light on photoresistor - less bright oled display and vice versa.<br>
