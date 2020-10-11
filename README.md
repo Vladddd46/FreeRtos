@@ -18,6 +18,11 @@
 		<li><b>led on/off/pulse</b> - turning on/off led; make led(s) pulsing.</li>
 	</ul> 
 
-Overview
+<h2>Overview</h2>
 
 ![ezgif-3-3998ca78c802](https://user-images.githubusercontent.com/11888485/95690933-e7f65000-0c23-11eb-8175-e851e155d96f.gif)
+
+
+<h3>All tasks are made for <a href="https://en.wikipedia.org/wiki/ESP32">esp32</a> on ESP-IDF framework.
+For more datails:
+https://docs.espressif.com/projects/esp-idf/en/stable/index.html</h3>
