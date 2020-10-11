@@ -26,6 +26,8 @@ void dht11_monitor() {
             xQueueSend(dht11_data_queue,(void *)data, (TickType_t)0);
         vTaskDelay(350);
     }
+    if (data != NULL)
+        free(data);
 }
 
 

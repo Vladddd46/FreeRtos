@@ -3,7 +3,7 @@
 #include "driver/i2c.h"
 #include <unistd.h>
 #include <stdlib.h>
-#include "font6x8.h"
+
 /*
  * SH1106 OLED I2C display driver for ESP32 ESP-IDF.
  */

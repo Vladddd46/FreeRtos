@@ -25,6 +25,7 @@ void dht11_monitor() {
         if (data != NULL)
             xQueueSend(dht11_data_queue,(void *)data, (TickType_t)0);
         vTaskDelay(350);
+        free(data);
     }
 }
 
@@ -75,6 +76,8 @@ static void print_full_log(char **data) {
         if (tmp) 
             free(tmp);
     }
+    if (previous_value != NULL)
+        free(previous_value);
 }
 
 

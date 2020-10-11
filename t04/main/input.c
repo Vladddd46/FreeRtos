@@ -42,11 +42,9 @@ void user_input() {
                         if (!xQueueSend(global_input_queue, command_line, (200 / portTICK_PERIOD_MS)))
                             printf("Failed to send data in queue\n");
                         index = 0;
-                        free(buf);
                         break;
                     }
                     else if (buf[0] == 27 || buf[0] == '[') {
-                        free(buf);
                         break;
                     } 
                     else if (buf[0] == BACK_SPACE && buf_size == 1) {
@@ -67,10 +65,11 @@ void user_input() {
                             index++;
                         }
                     }
-                    free(buf);
                 }
             }
         }
+        if (buf != NULL)
+            free(buf);
     }
 }
 
