@@ -3,7 +3,6 @@
 #define EN_AMP 23
 
 void sound_task() {
-    esp_err_t err;
     gpio_set_direction(EN_AMP, GPIO_MODE_OUTPUT);
     gpio_set_level(EN_AMP, 1);
     dac_output_enable(DAC_CHANNEL_1);

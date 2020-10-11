@@ -23,8 +23,6 @@
  *  notification to time_task.
  */
 static void IRAM_ATTR timer_interrupt(void *para) {
-    uint32_t timer_intr = timer_group_get_intr_status_in_isr(TIMER_GROUP_0);
-    uint64_t timer_counter_value = timer_group_get_counter_value_in_isr(TIMER_GROUP_0, TIMER_0);
     xTaskNotifyFromISR(xTaskClock, 1, eNoAction, NULL);
     timer_group_clr_intr_status_in_isr(TIMER_GROUP_0, TIMER_0);
     timer_group_enable_alarm_in_isr(TIMER_GROUP_0, TIMER_0);

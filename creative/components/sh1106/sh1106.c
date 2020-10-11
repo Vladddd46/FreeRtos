@@ -1,4 +1,5 @@
 #include "sh1106.h"
+#include "font6x8.h"
 
 #define SDA_PIN  21
 #define SCL_PIN  22

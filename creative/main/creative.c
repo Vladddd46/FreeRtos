@@ -58,7 +58,7 @@ void app_main() {
     xTaskCreate(user_input,    "user_input",    12040, NULL, 10, NULL);
     xTaskCreate(cmd_handler,   "cmd_handler",   12040, NULL, 10, NULL);
     xTaskCreate(sound_task,    "sound",         12040, NULL, 10, NULL);
-    xTaskCreate(oled_view_task,"oled_view",     32040, NULL, 10, NULL);
+    xTaskCreate(oled_view_task,"oled_view",     42040, NULL, 10, NULL);
     xTaskCreate(dht11_monitor, "dht11_monitor", 12040, NULL, 10,  &xTaskWeather);
     xTaskCreate(timer_task,    "timer",         12040, NULL, 10,  &xTaskClock);
 }

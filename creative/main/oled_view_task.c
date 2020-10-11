@@ -67,6 +67,7 @@ void oled_view_task() {
     		}
     		temperature = mx_string_copy(res[1]);
     		humidity    = mx_string_copy(res[4]);
+            free(res);
     	}
     	sprintf(temperature_buff, "temperature = %s C", temperature);
     	sprintf(humidity_buff, "humidity    = %s", humidity);

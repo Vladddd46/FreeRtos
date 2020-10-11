@@ -19,11 +19,13 @@ void dht11_monitor() {
     char *data = NULL;
 
     while(1) {
+        if (data != NULL)
+            free(data);
         data = get_dht11_data(DHT11_POWER, DHT11_DATA); 
         if (uxQueueMessagesWaiting(dht11_data_queue) == DHT11_QUEUE_SIZE)
             xQueueReceive(dht11_data_queue, (void *)black_hole, (TickType_t)0);
         if (data != NULL) {
-            xQueueSend(dht11_current_queue, mx_string_copy(data), (TickType_t)0);
+            xQueueSend(dht11_current_queue, data, (TickType_t)0);
             xQueueSend(dht11_data_queue,(void *)data, (TickType_t)0);
         }
         vTaskDelay(350);
@@ -77,6 +79,8 @@ static void print_full_log(char **data) {
         if (tmp) 
             free(tmp);
     }
+    if (previous_value != NULL)
+        free(previous_value);
 }
 
 
