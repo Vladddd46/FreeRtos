@@ -14,9 +14,9 @@
 
 /* Config */
 #define COMMAND_LINE_MAX_LENGTH 1024
-#define UART_PORT UART_NUM_1
-#define NEWLINE "\n\r"
-
+#define UART_PORT 				UART_NUM_1
+#define PROMPT        			"\r\nEnter your command : "
+#define NEWLINE  				"\r\n"
 /* Errors */
 #define WRONG_SYNTAX_LED_ON_OFF 10
 #define INVALID_ARGUMENT        11
@@ -45,12 +45,9 @@ int led1_state;
 int led2_state;
 int led3_state;
 
-int is_executing;
-
 xQueueHandle  global_queue_handle;
 QueueHandle_t uart0_queue;
 QueueHandle_t dht11_data_queue;
-
 TaskHandle_t xTaskWeather;
 
 void user_input();
@@ -62,14 +59,10 @@ void uart_init(int baud_rate);
 /* dht11 fucntions */
 void dht11_monitor();
 void dht11_log(char **cmd);
-
 void help_command();
 
 /* led functions */
 void led_on(char **cmd, int len);
 void led_off(char **cmd, int len);
 void led_pulse(char **cmd, int len);
-void led_mode(int gpio_led, int set);
-void all_led_set(int mode);
-void led_set_by_id(int led_id, int mode);
 void led_pulsing_task(void *settings);

@@ -12,6 +12,7 @@
 // Prints current temperature and humidity.
 static void print_current_tehu(char **data) {
     int len = mx_strarr_len(data);
+    uart_write_bytes(UART_PORT, NEWLINE, strlen(NEWLINE));
     uart_write_bytes(UART_PORT, (const char*)data[len - 1], strlen((const char*)data[len -1]));
 }
 
@@ -27,6 +28,7 @@ static void print_full_log(char **data) {
     char time_buff[100];
     int seconds_passed;
 
+    uart_write_bytes(UART_PORT, NEWLINE, strlen(NEWLINE));
     for (int i = 0; data[i]; ++i) {
         bzero(time_buff, 100);
         seconds_passed =  (mx_strarr_len(data) * 5) - (i * 5);

@@ -65,7 +65,7 @@ void led_pulsing_task(void *settings) {
         ESP_LOGI("ledc_channel_config ", "%s", "some error occured");
     if (ledc_fade_func_install(0) != ESP_OK) 
         ESP_LOGI("ledc_fade_func_install ", "%s", "some error occured");
-
+    
      while(1) {
         if (led_id == 1 && led1_state == LED_IS_OFF)
             vTaskDelete(NULL);

@@ -3,6 +3,7 @@
 void error_msg(int err) {
     char *msg = NULL;
 
+
     if (err == INVALID_ARGUMENT)
         msg = "\e[31minvalid led number|\e[33m led on/off [1-3]\e[0m\n\r";
     else if (err == WRONG_SYNTAX_LED_ON_OFF)
@@ -18,5 +19,8 @@ to do manipulations with it.\e[33msyntax: led off led_number(1-3)\e[0m\n\r";
     else if (err == WRONG_FREQUENCY_VALUE)
         msg = "\e[31mwrong frequency value|\e[33m f must be >= 0.0 and <= 2.0\e[0m\n\r";
 
-    if (msg) uart_write_bytes(UART_PORT, msg, strlen(msg));
+    if (msg) {
+        uart_write_bytes(UART_PORT, NEWLINE, strlen(NEWLINE));
+        uart_write_bytes(UART_PORT, msg, strlen(msg));
+    }
 }
