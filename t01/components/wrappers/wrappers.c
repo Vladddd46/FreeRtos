@@ -33,3 +33,29 @@ void dac_output_enable_wrapper(int dac_channel) {
 		exit(1);
 	}
 } 
+
+
+
+void led_mode(int gpio_led, int set) {
+    gpio_set(gpio_led, GPIO_MODE_OUTPUT, set);
+}
+
+
+
+void all_led_set(int mode) {
+    led_mode(LED1_GPIO, mode);
+    led_mode(LED2_GPIO, mode);
+    led_mode(LED3_GPIO, mode);
+}
+
+
+
+void led_set_by_id(int led_id, int mode) {
+    if (led_id == 1)
+        led_mode(LED1_GPIO, mode);
+    if (led_id == 2)
+        led_mode(LED2_GPIO, mode);
+    if (led_id == 3)
+        led_mode(LED3_GPIO, mode);
+}
+

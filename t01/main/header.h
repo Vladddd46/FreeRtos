@@ -11,7 +11,7 @@
 #include <regex.h> 
 
 #define COMMAND_LINE_MAX_LENGTH 1024
-#define UART_PORT UART_NUM_0
+#define UART_PORT UART_NUM_1
 
 #define WRONG_SYNTAX_LED_ON_OFF 10
 #define INVALID_ARGUMENT        11
@@ -49,7 +49,4 @@ void led_on(char **cmd, int len);
 void led_off(char **cmd, int len);
 void led_pulse(char **cmd, int len);
 
-void led_mode(int gpio_led, int set);
-void all_led_set(int mode);
-void led_set_by_id(int led_id, int mode);
 void led_pulsing_task(void *settings);

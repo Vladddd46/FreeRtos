@@ -2,15 +2,18 @@
 
 // determines type of led cmd.
 void led_commands(char **cmd, int len) {
-    if (cmd[1] && !strcmp(cmd[1], "on"))
-        led_on(cmd, len);
-    else if  (cmd[1] && !strcmp(cmd[1], "off"))
-        led_off(cmd, len);
-    else if  (cmd[1] && !strcmp(cmd[1], "pulse"))
-        led_pulse(cmd, len);
-    else
+    if (len < 2) {
         error_msg(NO_SUCH_COMMAND);
+    }
+    else if (!strcmp(cmd[1], "on"))
+        led_on(cmd, len);
+    else if  (!strcmp(cmd[1], "off"))
+        led_off(cmd, len);
+    else if  (!strcmp(cmd[1], "pulse"))
+        led_pulse(cmd, len);
 }
+
+
 
 void help() {
     char *msg = "List of supported commands:\
@@ -20,6 +23,8 @@ void help() {
     \n\r\e[32mhelp\e[0m - lists all supported commands.\n\r";
     uart_write_bytes(UART_PORT, msg, strlen(msg));
 }
+
+
 
 /*
  * Determines the type of program
