@@ -113,6 +113,9 @@ char *upper_to_lower(char *str) {
 
 
 
+
+
+
 /*
  * Receives user`s input from Queue.
  * Splits user`s input in arr.
@@ -146,3 +149,4 @@ void cmd_handler() {
         }
     }
 }
+

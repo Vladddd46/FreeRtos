@@ -13,7 +13,10 @@
 static void print_current_tehu(char **data) {
     int len = mx_strarr_len(data);
     uart_write_bytes(UART_PORT, NEWLINE, strlen(NEWLINE));
-    uart_write_bytes(UART_PORT, (const char*)data[len - 1], strlen((const char*)data[len -1]));
+    if (data[0] != NULL)
+        uart_write_bytes(UART_PORT, (const char*)data[len - 1], strlen((const char*)data[len -1]));
+    else
+        uart_write_bytes(UART_PORT, "no dht11 data yet", strlen("no dht11 data yet"));
 }
 
 
@@ -40,7 +43,7 @@ static void print_full_log(char **data) {
         uart_write_bytes(UART_PORT, (const char*)data[i], strlen((const char*)data[i]));
         if (previous_value && strcmp(previous_value, data[i]) != 0)
             uart_write_bytes(UART_PORT, (const char*)time_buff, strlen((const char*)time_buff));
-
+        
         if (previous_value)
             tmp = previous_value;
         previous_value = mx_string_copy(data[i]);

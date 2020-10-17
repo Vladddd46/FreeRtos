@@ -11,11 +11,12 @@
 #include <regex.h> 
 #include "get_dht11_data.h"
 #include "libmx.h"
+#include <strings.h>
+#include <ctype.h>
 
 /* Config */
 #define COMMAND_LINE_MAX_LENGTH 1024
 #define UART_PORT 				UART_NUM_1
-#define PROMPT        			"\r\nEnter your command : "
 #define NEWLINE  				"\r\n"
 /* Errors */
 #define WRONG_SYNTAX_LED_ON_OFF 10
