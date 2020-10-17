@@ -2,8 +2,7 @@
 
 #define TIMER_DIVIDER         80 //  Hardware timer clock divider
 #define TIMER_SCALE           (TIMER_BASE_CLK / TIMER_DIVIDER)  // convert counter value to seconds
-#define TIMER_INTERVAL1_SEC   1.0 // how often the interrupt is triggered (1 sec)
-#define TEST_WITH_RELOAD      1        
+#define TIMER_INTERVAL1_SEC   1.0 // how often the interrupt is triggered (1 sec)    
 #define DAY_IN_SECONDS        86400
 
 /* @ Digital clock implementation.

@@ -17,7 +17,8 @@
 #include "driver/timer.h"
 #include "sh1106.h"
 #include "driver/i2c.h"
-
+#include <strings.h>
+#include <ctype.h>
 
 /* Config */
 #define COMMAND_LINE_MAX_LENGTH 1024
