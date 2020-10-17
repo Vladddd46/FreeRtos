@@ -4,15 +4,48 @@
 #define CR_ASCII_CODE 0xD // \r the same
 #define BACK_SPACE    127
 
+#define NOT_SUPPORT_ARROWS "Arrows are not supported"
+#define PROMPT             "Enter your command : "
+#define LENGTH_ERR         "Command can`t be longer than 30 symbols!"
+
+
+void inline uart_print(char *msg, bool newline) {
+    if (newline) uart_write_bytes(UART_PORT, "\r\n", 2);
+    uart_write_bytes(UART_PORT, msg, strlen(msg));  
+    if (newline) uart_write_bytes(UART_PORT, "\r\n", 2);
+}
+
+
+
+void inline erase_char() {
+    char c = 8;
+    char *tmp = &c;
+    uart_write_bytes(UART_PORT, tmp, 1);
+    uart_write_bytes(UART_PORT, " ", 1);
+    uart_write_bytes(UART_PORT, tmp, 1);
+}
+
+
+
+static int arrow_checker(uint8_t *buf) {
+    for (int i = 0; buf[i]; ++i) {
+        if (iscntrl(buf[i]) && buf[i] == 27) {
+            uart_print(NOT_SUPPORT_ARROWS, 1);
+            return 1;
+        }
+    }
+    return 0;
+}
+
+
+
 /*
  * Reads user`s input from UART2 and stores it in comman_Line string.
  * When user press enter string command_line is sending to cmd_handler
  * task through queue.
  */
 void user_input() {
-    char *msg = "\n\rSorry, but command can`t be longer than 30 symbols.\n\r";
     uart_event_t event;
-    const char *prompt = "Enter your command : ";
     uint8_t command_line[COMMAND_LINE_MAX_LENGTH];
     size_t buf_size    = 0;
     uint8_t *buf       = NULL;
@@ -20,40 +53,36 @@ void user_input() {
 
     while(1) {
         bzero(command_line, COMMAND_LINE_MAX_LENGTH);
-        uart_write_bytes(UART_PORT, prompt, strlen(prompt));
-
+        uart_write_bytes(UART_PORT, PROMPT, strlen(PROMPT));
         while (1) {
             if (xQueueReceive(uart0_queue, (void * )&event, (portTickType)portMAX_DELAY)) {
                 if (event.type == UART_DATA) {
                     uart_get_buffered_data_len(UART_PORT, &buf_size);
                     if (buf_size > 30 || index > 30) {
-                        uart_write_bytes(UART_PORT, msg, strlen(msg));
-                        index = 0;
-                        buf_size = 0;
+                        uart_print(LENGTH_ERR, 1);
                         break;
                     }
-                    buf = malloc(sizeof(uint8_t) * (buf_size + 1));
-                    memset(buf, '\0', buf_size + 1);
+                    buf =  malloc(sizeof(uint8_t) * (buf_size + 1));
+                    if (buf == NULL) 
+                        break;
+                    bzero(buf, buf_size + 1);
                     uart_read_bytes(UART_PORT, buf, buf_size + 1, buf_size);
+                    if (arrow_checker(buf))
+                        break;
                     if (buf[0] == CR_ASCII_CODE && buf_size == 1) {
-                        uart_write_bytes(UART_PORT, "\n\r", strlen("\n\r"));
+                        uart_write_bytes(UART_PORT, "\n\r", 2);
                         if (!xQueueSend(global_queue_handle, command_line, (200 / portTICK_PERIOD_MS)))
                             printf("Failed to send data in queue\n");
-                        index = 0;
                         break;
                     }
                     else if (buf[0] == BACK_SPACE && buf_size == 1) {
                         if (index > 0) {
-                            char c = 8;
-                            char *tmp = &c;
-                            uart_write_bytes(UART_PORT, tmp, 1);
-                            uart_write_bytes(UART_PORT, " ", 1);
-                            uart_write_bytes(UART_PORT, tmp, 1);
+                            erase_char();
                             command_line[index - 1] = '\0';
                             index -= 1;
                         }
                     }
-                    uart_write_bytes(UART_PORT, (const char *)buf, strlen((const char *)buf));
+                    uart_print((char *)buf, 0);
                     for (int i = 0; buf[i]; ++i) {
                         if (buf[i] != BACK_SPACE) {
                             command_line[index] = buf[i];
@@ -64,13 +93,15 @@ void user_input() {
                 }
             }
         }
+        index    = 0;
+        buf_size = 0;
     }
 }
 
 
 char *upper_to_lower(char *str) {
     int len = strlen((const char *)strlen) + 1;
-    char *new_str = (char *)malloc(len * sizeof(char));
+    char *new_str = mx_strnew(len);
     bzero(new_str, len);
 
     for (int i = 0; str[i]; ++i) {
@@ -93,6 +124,7 @@ void cmd_handler() {
     bzero(result, 1000);
 
     char **cmd = (char **)malloc(100 * sizeof(char *));
+    if (cmd == NULL) exit(1);
     while(1) {
         if (xQueueReceive(global_queue_handle, result, (200 / portTICK_PERIOD_MS))) {
             for (int i = 0; i < 100; ++i) cmd[i] = NULL;

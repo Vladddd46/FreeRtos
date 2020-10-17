@@ -9,6 +9,9 @@
 #include "driver/dac.h"
 #include "driver/ledc.h"
 #include <regex.h> 
+#include <strings.h>
+#include <ctype.h>
+#include "libmx.h"
 
 #define COMMAND_LINE_MAX_LENGTH 1024
 #define UART_PORT UART_NUM_1
