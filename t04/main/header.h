@@ -20,6 +20,8 @@
 #include <unistd.h>
 #include "esp_err.h"
 #include "driver/i2s.h"
+#include <strings.h>
+#include <ctype.h>
 
 
 

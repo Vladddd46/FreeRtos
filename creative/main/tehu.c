@@ -46,8 +46,12 @@ void dht11_monitor() {
 // Prints current temperature and humidity.
 static void print_current_tehu(char **data) {
     int len = mx_strarr_len(data);
-    uart_write_bytes(UART_PORT, (const char*)data[len - 1], strlen((const char*)data[len -1]));
+    if (data[0] != NULL)
+        uart_write_bytes(UART_PORT, (const char*)data[len - 1], strlen((const char*)data[len -1]));
+    else
+        uart_write_bytes(UART_PORT, "no dht11 data yet", strlen("no dht11 data yet"));
 }
+
 
 
 /*
